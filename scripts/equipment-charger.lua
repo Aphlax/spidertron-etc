@@ -1,6 +1,6 @@
 local EquipmentCharger = {}
 EquipmentCharger.name = "equipment-charger"
-EquipmentCharger.max_transfer_per_update = 4000000 -- About 12x the max charging rate.
+EquipmentCharger.max_transfer_per_update = 100000000 -- About 12x the max charging rate.
 
 function EquipmentCharger.on_create(event)
     local entity
@@ -95,7 +95,8 @@ function EquipmentCharger.update(tick)
         local transfer_available = EquipmentCharger.max_transfer_per_update
         for _, equipment in pairs(equipment_item.grid.equipment or {}) do
             if equipment.energy < equipment.max_energy then
-                local transfer = math.min(equipment.max_energy - equipment.energy, charger.entity.energy, transfer_available)
+                local transfer = math.min(equipment.max_energy - equipment.energy,
+                        charger.entity.energy, transfer_available)
                 charger.entity.energy = charger.entity.energy - transfer
                 equipment.energy = equipment.energy + transfer
                 transfer_available = transfer_available - transfer
@@ -103,14 +104,14 @@ function EquipmentCharger.update(tick)
             if transfer_available == 0 or charger.entity.energy == 0 then goto continue end
         end
         
-        -- Done.
-        input.remove({ name = equipment_item.name, count = 1 })
+        -- Fully charged.
         output.insert(equipment_item)
+        input.remove({ name = equipment_item.name, count = 1 })
         
         ::continue::
     end
 end
-repeatingTask(10, EquipmentCharger.update)
+Events.repeatingTask(10, EquipmentCharger.update)
 
 
 

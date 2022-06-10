@@ -13,7 +13,7 @@ local charger = {
     name = "equipment-charger",
     icon = "__spidertron-fef__/graphics/icon/equipment-charger.png",
     icon_size = 64,
-    flags = {"placeable-neutral", "placeable-player", "player-creation", "no-automated-item-removal", "no-automated-item-insertion"},
+    flags = {"placeable-neutral", "placeable-player", "player-creation"},
     max_health = 250,
     corpse = "big-remnants",
     dying_explosion = "medium-explosion",
@@ -32,10 +32,10 @@ local charger = {
     -- accumulator
     energy_source = {
         buffer_capacity = "500MJ",
-        input_flow_limit = "3MW",
+        input_flow_limit = "80MW",
         output_flow_limit = "0kW",
         type = "electric",
-        usage_priority = "secondary-input"
+        usage_priority = "secondary-input",
     },
     charge_cooldown = 0,
     discharge_cooldown = 0,

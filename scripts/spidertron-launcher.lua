@@ -85,7 +85,7 @@ function SpidertronLauncher.update(tick)
         ::continue::
     end
 end
-repeatingTask(60, SpidertronLauncher.update)
+Events.repeatingTask(60, SpidertronLauncher.update)
 
 
 

@@ -116,7 +116,7 @@ function SpidertronProcessor.update(tick)
         ::continue::
     end
 end
-repeatingTask(60, SpidertronProcessor.update)
+Events.repeatingTask(60, SpidertronProcessor.update)
 
 
 
