@@ -100,7 +100,8 @@ function SpidertronProcessor.update(tick)
         for _,i in pairs(range(1000)) do
             local item = processor.entity.get_request_slot(i)
             if item then
-                spidertron.set_request_slot(item, i)
+                spidertron.set_vehicle_logistic_slot(i,
+                        {name = item.name, min = item.count, max = item.count})
             else
                 spidertron.clear_request_slot(i)
             end
