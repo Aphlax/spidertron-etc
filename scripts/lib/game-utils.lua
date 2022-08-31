@@ -1,6 +1,9 @@
 local GameUtils = {}
 
 function GameUtils.debug(message)
+    if not game then
+        return log(message)
+    end
     for _, player in pairs(game.players) do
         player.print({"", type(message) == "string" and message or serpent.line(message)})
     end
