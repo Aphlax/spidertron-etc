@@ -16,6 +16,7 @@ function SpidertronProcessor.on_create(event)
         force = entity.force,
         name = SpidertronFefUtils.getInputContainerName(entity.direction),
         position = v_add(entity.position, v_rotate({ x = -0.5, y = 0.9 }, entity.direction)),
+        create_build_effect_smoke = false,
     })
     input.destructible = false
     
@@ -24,6 +25,7 @@ function SpidertronProcessor.on_create(event)
         force = entity.force,
         name = SpidertronFefUtils.getOutputContainerName(entity.direction),
         position = v_add(entity.position, v_rotate({ x = 0.5, y = 0.9 }, entity.direction)),
+        create_build_effect_smoke = false,
     })
     output.destructible = false
     

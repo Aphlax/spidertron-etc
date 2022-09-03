@@ -2,7 +2,7 @@ local GameUtils = {}
 
 function GameUtils.debug(message)
     if not game then
-        return log(message)
+        return log(type(message) == "string" and message or serpent.line(message))
     end
     for _, player in pairs(game.players) do
         player.print({"", type(message) == "string" and message or serpent.line(message)})

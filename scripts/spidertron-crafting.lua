@@ -9,8 +9,8 @@ function SpidertronCrafting.on_open_spidertron(event)
 
     -- TODO: check if crafting is supported in this spidertron.
 
-    local gui = game.players[event.player_index].gui.relative
-    local frame = gui.add({ type = "frame", name = SpidertronCrafting.window_name })
+    local player = game.get_player(event.player_index)
+    local frame = player.gui.relative.add({ type = "frame", name = SpidertronCrafting.window_name })
     frame.anchor = { gui = defines.relative_gui_type.spider_vehicle_gui,
                     position = defines.relative_gui_position.right }
     frame.style.size = {150, 150}

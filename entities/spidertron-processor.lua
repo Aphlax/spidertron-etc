@@ -31,7 +31,8 @@ local processor = {
 
     -- container
     inventory_size = 0,
-    logistic_mode = "requester",
+    logistic_mode = "buffer",
+    render_not_in_network_icon = false,
 }
 
 data:extend({ processor })
