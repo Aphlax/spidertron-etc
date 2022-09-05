@@ -24,7 +24,6 @@ local extractor = {
     enable_inventory_bar = false,
     collision_box = {{-0.8, -0.8},{0.8, 0.8}},
     selection_box = {{-1, -1},{1, 1}},
-    selection_priority = 52,
 }
 
 local config = {
@@ -32,7 +31,7 @@ local config = {
     name = "spidertron-extractor-config",
     icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
     icon_size = 64,
-    flags = {"placeable-neutral", "not-blueprintable", "not-deconstructable", "placeable-off-grid"},
+    flags = {"placeable-neutral", "not-blueprintable", "not-deconstructable", "placeable-off-grid", "no-automated-item-insertion", "no-automated-item-removal"},
     max_health = 1000,
     alert_icon_shift = util.by_pixel(0, -12),
     se_allow_in_space = true,
@@ -53,7 +52,9 @@ local config = {
     -- container
     inventory_size = 0,
     logistic_mode = "buffer",
+    max_logistic_slots = 64,
     render_not_in_network_icon = false,
+    selection_priority = 0,
 }
 
 data:extend({ extractor, config })

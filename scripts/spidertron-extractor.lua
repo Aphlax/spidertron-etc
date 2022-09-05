@@ -4,6 +4,8 @@ SpidertronExtractor.config_name = "spidertron-extractor-config"
 SpidertronExtractor.window_name = "spidertron-extractor-frame"
 SpidertronExtractor.button_name = "spidertron-extractor-config-button"
 
+local MIN_DISTANCE = 8
+
 function SpidertronExtractor.on_create(event)
     local entity
     if event.entity and event.entity.valid then
@@ -13,6 +15,31 @@ function SpidertronExtractor.on_create(event)
         entity = event.created_entity
     end
     if not entity or entity.name ~= SpidertronExtractor.name then return end
+
+    -- Enforce minimum distance.
+    for _,extractor in pairs(global.spidertron_extractors or {}) do
+        if not extractor.entity.valid or extractor.entity.surface.index ~= entity.surface.index then
+            goto continue
+        end
+        local dist = v_sub(extractor.entity.position, entity.position)
+        if math.abs(dist.x) <= MIN_DISTANCE and math.abs(dist.y) <= MIN_DISTANCE then
+            local player = event.player_index and game.get_player(event.player_index) or nil
+            local inventory = player and player.get_inventory(defines.inventory.character_main)
+            entity.mine({ inventory = inventory.entity_owner and inventory or nil, force = true })
+            rendering.draw_rectangle({
+                left_top = translate(extractor.entity.position, -MIN_DISTANCE, -MIN_DISTANCE),
+                right_bottom = translate(extractor.entity.position, MIN_DISTANCE, MIN_DISTANCE),
+                surface = extractor.entity.surface,
+                color = {r = 0.2, g = 0, b = 0, a = 0.01},
+                filled = true,
+                players = player and { player } or nil,
+                draw_on_ground = true,
+                time_to_live = 90,
+            })
+            return
+        end
+        ::continue::
+    end
 
     -- Create config chest.
     local config = entity.surface.create_entity({
@@ -114,8 +141,11 @@ function SpidertronExtractor.update(tick)
 
         if not extractor.spidertron then
             -- check if there is a spidertron near.
-            local spiders = extractor.entity.surface.find_entities_filtered(
-                    { position = extractor.entity.position, radius = 5, type = "spider-vehicle"})
+            local spiders = extractor.entity.surface.find_entities_filtered({
+                position = extractor.entity.position,
+                radius = MIN_DISTANCE / 2,
+                type = "spider-vehicle",
+            })
             for _, spider in pairs(spiders) do
                 -- if there is, check if it has waypoints
                 -- if it has more than one, ignore
@@ -170,8 +200,7 @@ function SpidertronExtractor.update(tick)
             local inventory = item_stack and trash or trunk
             item_stack = item_stack or trunk.find_item_stack(item.name)
             if item_stack then
-                local amount = Math.min(item.count, Math.min(2,
-                        Math.min(insertable_count, item_stack.count)))
+                local amount = math.min(2, item.count, insertable_count, item_stack.count)
                 inventory.remove({ name = item.name, count = amount })
                 output.insert({ name = item.name, count = amount })
                 if item.count == amount then
@@ -190,7 +219,7 @@ Events.repeatingTask(30, SpidertronExtractor.update)
 
 function createTransferConfig(config)
     local transferConfig = {}
-    for i=1, 1000 do
+    for i=1, 64 do
         local item = config.get_request_slot(i)
         if item then
             transferConfig[#transferConfig + 1] = { name = item.name, count = item.count }
