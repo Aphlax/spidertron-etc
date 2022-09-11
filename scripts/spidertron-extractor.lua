@@ -55,10 +55,10 @@ function SpidertronExtractor.on_create(event)
     global.spidertron_extractors = global.spidertron_extractors or {}
     global.spidertron_extractors[entity.unit_number] = {
         entity = entity,
-        unit_number = entity.unit_number,
         config = config,
-        spidertron = nil,
     }
+    global.spidertron_extractor_configs = global.spidertron_extractor_configs or {}
+    global.spidertron_extractor_configs[config.unit_number] = entity.unit_number
 
     entity.rotatable = false
 end
@@ -69,6 +69,7 @@ Events.addListener(defines.events.script_raised_revive, SpidertronExtractor.on_c
 
 function SpidertronExtractor.delete(extractor, unit_number)
     if extractor.config.valid then
+        global.spidertron_extractor_configs[extractor.config.unit_number] = nil
         extractor.config.destroy()
     end
     global.spidertron_extractors[unit_number] = nil
@@ -114,9 +115,12 @@ function SpidertronExtractor.update(tick)
                 -- if the spidertron is at the target, set the spidertron as connected
                 if v_length(v_sub(spider.position, target)) < 1 and spider.speed == 0 then
                     extractor.spidertron = spider
+                    -- The current state of the transfer.
                     extractor.transfer = createTransferConfig(extractor.config)
+                    -- The starting state of the transfer (for when it changes mid-transfer).
+                    extractor.transfer_config = createTransferConfig(extractor.config)
                     SpidertronExtractor.on_gui_update(extractor)
-                    goto break2
+                    break
                 end
                 -- otherwise, set a waypoint to the center of this entity
                 if v_length(v_sub(spider.position, target)) > 2 then
@@ -124,19 +128,21 @@ function SpidertronExtractor.update(tick)
                     goto continue2
                 end
                 -- if close enough, just teleport to the target
-                spider.teleport(target)
-                spider.torso_orientation = 0.5
-                spider.stop_spider()
+                if spider.speed == 0 then
+                    spider.teleport(target)
+                    spider.torso_orientation = 0.5
+                    spider.stop_spider()
+                end
 
                 ::continue2::
             end
-            ::break2::
         else
             -- if the spidertron is not at the center anymore, disconnect
             if not extractor.spidertron.valid or
                     v_length(v_sub(extractor.spidertron.position, target)) > 1 then
                 extractor.spidertron = nil
                 extractor.transfer = nil
+                extractor.transfer_config = nil
                 SpidertronExtractor.on_gui_update(extractor)
             end
         end
@@ -212,27 +218,37 @@ function SpidertronExtractor.on_open_gui(event)
 
     local div3 = frame.add({type = "flow", direction = "horizontal", name = "div3"})
     div3.add({type = "label", caption = "Spidertron:"}).style.bottom_margin = 4
-    createStatusLabel(div3, extractor.spidertron)
+    local caption = extractor.spidertron and "Connected" or "None"
+    div3.add({type = "label", caption = caption, name = "state_label"}).style.font_color =
+        extractor.spidertron and {g = 1} or {r = 1}
 
     if extractor.transfer then
         local div4 = frame.add({type = "flow", direction = "horizontal", name = "div4"})
         div4.add({type = "label", caption = "Transfer:"})
         local transfer_config = div4.add({type = "flow", direction = "horizontal",
                                           name = "transfer_config"})
-        fillTransferConfig(transfer_config, extractor.transfer)
+        fillTransferConfigGui(transfer_config, extractor.transfer)
     end
 end
 Events.addListener(defines.events.on_gui_opened, SpidertronExtractor.on_open_gui)
 
 function SpidertronExtractor.on_close_gui(event)
-    if event.gui_type ~= defines.gui_type.entity or
-            not event.entity or event.entity.name ~= SpidertronExtractor.name then
+    if event.gui_type ~= defines.gui_type.entity or not event.entity then
         return
     end
 
-    local player = game.get_player(event.player_index)
-    if player.gui.relative[SpidertronExtractor.window_name] then
-        player.gui.relative[SpidertronExtractor.window_name].destroy()
+    if event.entity.name == SpidertronExtractor.name then
+        local player = game.get_player(event.player_index)
+        if player.gui.relative[SpidertronExtractor.window_name] then
+            player.gui.relative[SpidertronExtractor.window_name].destroy()
+        end
+        return
+    end
+
+    if event.entity.name == SpidertronExtractor.config_name then
+        local unit_number = (global.spidertron_extractor_configs or {})[event.entity.unit_number]
+        if not unit_number or not (global.spidertron_extractors or {})[unit_number] then return end
+        SpidertronExtractor.on_transfer_update((global.spidertron_extractors or {})[unit_number])
     end
 end
 Events.addListener(defines.events.on_gui_closed, SpidertronExtractor.on_close_gui)
@@ -270,7 +286,7 @@ function SpidertronExtractor.on_gui_update(extractor)
             end
             local transfer_config = frame["div4"]["transfer_config"]
             transfer_config.clear()
-            fillTransferConfig(transfer_config, extractor.transfer)
+            fillTransferConfigGui(transfer_config, extractor.transfer)
         else
             if frame["div4"] then
                 frame["div4"].destroy()
@@ -281,6 +297,37 @@ function SpidertronExtractor.on_gui_update(extractor)
     end
 end
 
+function SpidertronExtractor.on_transfer_update(extractor)
+    local new_config = createTransferConfig(extractor.config)
+    for _,item in pairs(new_config) do
+        local old
+        for _,old_item in pairs(extractor.transfer_config or {}) do
+            if old_item.name == item.name then
+                old = old_item
+                break
+            end
+        end
+        if old then
+            if item.count > old.count then
+                local done = false
+                for _,current_item in pairs(extractor.transfer or {}) do
+                    if current_item.name == item.name then
+                        current_item.count = current_item.count + item.count - old.count
+                        done = true
+                        break
+                    end
+                end
+                if not done and extractor.transfer then
+                    extractor.transfer[#extractor.transfer + 1] =
+                        {name = item.name, count = item.count - old.count}
+                end
+            end
+        elseif extractor.transfer then
+            extractor.transfer[#extractor.transfer + 1] = {name = item.name, count = item.count}
+        end
+    end
+    extractor.transfer_config = new_config
+end
 
 function createTransferConfig(config)
     local transferConfig = {}
@@ -301,18 +348,12 @@ function createItemIcon(parent, item)
     if item.count then
         style = parent.add({type = "label", caption = item.count}).style
         style.top_margin = 4
-        style.left_margin = -12
+        style.left_margin = #tostring(item.count) * -6 - 6
         style.font = "count-font"
     end
 end
 
-function createStatusLabel(parent, spidertron)
-    local caption = spidertron and "Connected" or "None"
-    parent.add({type = "label", caption = caption, name = "state_label"}).style.font_color =
-    spidertron and {g = 1} or {r = 1}
-end
-
-function fillTransferConfig(transfer_config, transfer)
+function fillTransferConfigGui(transfer_config, transfer)
     if #transfer == 0 then
         transfer_config.add({type = "label", caption = "Done"}).style.font_color = {g = 1}
     end
@@ -320,5 +361,3 @@ function fillTransferConfig(transfer_config, transfer)
         createItemIcon(transfer_config, item)
     end
 end
-
--- todo update transferConfig when config is changed
