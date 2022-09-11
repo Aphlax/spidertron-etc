@@ -25,7 +25,8 @@ function SpidertronExtractor.on_create(event)
         if math.abs(dist.x) <= MIN_DISTANCE and math.abs(dist.y) <= MIN_DISTANCE then
             local player = event.player_index and game.get_player(event.player_index) or nil
             local inventory = player and player.get_inventory(defines.inventory.character_main)
-            entity.mine({ inventory = inventory.entity_owner and inventory or nil, force = true })
+            entity.mine({ inventory = inventory.entity_owner and inventory or nil,
+                          force = true, ignore_mineable = true, })
             rendering.draw_rectangle({
                 left_top = translate(extractor.entity.position, -MIN_DISTANCE, -MIN_DISTANCE),
                 right_bottom = translate(extractor.entity.position, MIN_DISTANCE, MIN_DISTANCE),
@@ -84,53 +85,6 @@ Events.addListener(defines.events.on_robot_mined_entity, SpidertronExtractor.on_
 Events.addListener(defines.events.on_player_mined_entity, SpidertronExtractor.on_delete)
 Events.addListener(defines.events.script_raised_destroy, SpidertronExtractor.on_delete)
 
-
-function SpidertronExtractor.on_open_gui(event)
-    if event.gui_type ~= defines.gui_type.entity or
-            not event.entity or event.entity.name ~= SpidertronExtractor.name then
-        return
-    end
-
-    local player = game.get_player(event.player_index)
-    local frame = player.gui.relative.add({type = "frame", name = SpidertronExtractor.window_name,
-                                           direction = "vertical"})
-    frame.anchor = { gui = defines.relative_gui_type.container_gui,
-                     position = defines.relative_gui_position.right }
-    frame.style.size = {165, 165}
-
-    frame.add({type="label", caption = "Configure"})
-    frame.add({type="sprite-button", name = SpidertronExtractor.button_name,
-               sprite = "item/iron-gear-wheel"})
-end
-Events.addListener(defines.events.on_gui_opened, SpidertronExtractor.on_open_gui)
-
-function SpidertronExtractor.on_close_gui(event)
-    if event.gui_type ~= defines.gui_type.entity or
-            not event.entity or event.entity.name ~= SpidertronExtractor.name then
-        return
-    end
-
-    local player = game.get_player(event.player_index)
-    if player.gui.relative[SpidertronExtractor.window_name] then
-        player.gui.relative[SpidertronExtractor.window_name].destroy()
-    end
-end
-Events.addListener(defines.events.on_gui_closed, SpidertronExtractor.on_close_gui)
-
-function SpidertronExtractor.on_gui_click(event)
-    if not event.element or event.element.name ~= SpidertronExtractor.button_name then
-        return
-    end
-    local player = game.get_player(event.player_index)
-    local extractor = global.spidertron_extractors[player.opened.unit_number]
-    if not extractor then
-        return
-    end
-
-    player.opened = extractor.config
-end
-Events.addListener(defines.events.on_gui_click, SpidertronExtractor.on_gui_click)
-
 function SpidertronExtractor.update(tick)
     for unit_number, extractor in pairs(global.spidertron_extractors or {}) do
         if not extractor.entity.valid or not extractor.config.valid then
@@ -161,6 +115,7 @@ function SpidertronExtractor.update(tick)
                 if v_length(v_sub(spider.position, target)) < 1 and spider.speed == 0 then
                     extractor.spidertron = spider
                     extractor.transfer = createTransferConfig(extractor.config)
+                    SpidertronExtractor.on_gui_update(extractor)
                     goto break2
                 end
                 -- otherwise, set a waypoint to the center of this entity
@@ -180,8 +135,9 @@ function SpidertronExtractor.update(tick)
             -- if the spidertron is not at the center anymore, disconnect
             if not extractor.spidertron.valid or
                     v_length(v_sub(extractor.spidertron.position, target)) > 1 then
-                extractor.transfer = nil
                 extractor.spidertron = nil
+                extractor.transfer = nil
+                SpidertronExtractor.on_gui_update(extractor)
             end
         end
 
@@ -208,6 +164,7 @@ function SpidertronExtractor.update(tick)
                 else
                     item.count = item.count - amount
                 end
+                SpidertronExtractor.on_gui_update(extractor)
                 goto continue
             end
             ::continue3::
@@ -216,6 +173,114 @@ function SpidertronExtractor.update(tick)
     end
 end
 Events.repeatingTask(30, SpidertronExtractor.update)
+
+
+function SpidertronExtractor.on_open_gui(event)
+    if event.gui_type ~= defines.gui_type.entity or
+            not event.entity or event.entity.name ~= SpidertronExtractor.name then
+        return
+    end
+    local extractor = global.spidertron_extractors[event.entity.unit_number]
+    if not extractor or not extractor.entity.valid then
+        return
+    end
+
+    local player = game.get_player(event.player_index)
+    local frame = player.gui.relative.add({type = "frame", name = SpidertronExtractor.window_name,
+                                           direction = "vertical"})
+    frame.anchor = { gui = defines.relative_gui_type.container_gui,
+                     position = defines.relative_gui_position.right }
+    frame.style.size = {165, 165}
+
+    local div1 = frame.add({type = "flow", direction = "horizontal"})
+    div1.add({type = "label", caption = "Configure"}).style.top_margin = 10
+    div1.add({type = "sprite-button", name = SpidertronExtractor.button_name,
+              sprite = "item/iron-gear-wheel"})
+
+    local div2 = frame.add({type = "flow", direction = "horizontal"})
+    div2.add({type = "label", caption = "Items:"}).style.bottom_margin = 4
+    local item_config = div2.add({type = "flow", direction = "horizontal", name = "item_config"})
+    for i = 1,64 do
+        local item = extractor.config.get_request_slot(i)
+        if item then
+            createItemIcon(item_config, item)
+        end
+    end
+    if #item_config.children == 0 then
+        item_config.add({type = "label", caption = "Configure Items"}).style.font_color = {r = 1}
+    end
+
+    local div3 = frame.add({type = "flow", direction = "horizontal", name = "div3"})
+    div3.add({type = "label", caption = "Spidertron:"}).style.bottom_margin = 4
+    createStatusLabel(div3, extractor.spidertron)
+
+    if extractor.transfer then
+        local div4 = frame.add({type = "flow", direction = "horizontal", name = "div4"})
+        div4.add({type = "label", caption = "Transfer:"})
+        local transfer_config = div4.add({type = "flow", direction = "horizontal",
+                                          name = "transfer_config"})
+        fillTransferConfig(transfer_config, extractor.transfer)
+    end
+end
+Events.addListener(defines.events.on_gui_opened, SpidertronExtractor.on_open_gui)
+
+function SpidertronExtractor.on_close_gui(event)
+    if event.gui_type ~= defines.gui_type.entity or
+            not event.entity or event.entity.name ~= SpidertronExtractor.name then
+        return
+    end
+
+    local player = game.get_player(event.player_index)
+    if player.gui.relative[SpidertronExtractor.window_name] then
+        player.gui.relative[SpidertronExtractor.window_name].destroy()
+    end
+end
+Events.addListener(defines.events.on_gui_closed, SpidertronExtractor.on_close_gui)
+
+function SpidertronExtractor.on_gui_click(event)
+    if not event.element or event.element.name ~= SpidertronExtractor.button_name then
+        return
+    end
+    local player = game.get_player(event.player_index)
+    local extractor = global.spidertron_extractors[player.opened.unit_number]
+    if not extractor then
+        return
+    end
+
+    player.opened = extractor.config
+end
+Events.addListener(defines.events.on_gui_click, SpidertronExtractor.on_gui_click)
+
+function SpidertronExtractor.on_gui_update(extractor)
+    for _,player in pairs(game.players) do
+        local frame = player.gui.relative[SpidertronExtractor.window_name]
+        if not frame then
+            goto continue
+        end
+
+        local state_label = frame["div3"]["state_label"]
+        state_label.caption = extractor.spidertron and "Connected" or "None"
+        state_label.style.font_color = extractor.spidertron and {g = 1} or {r = 1}
+
+        if extractor.transfer then
+            if not frame["div4"] then
+                local div4 = frame.add({type = "flow", direction = "horizontal", name = "div4"})
+                div4.add({type = "label", caption = "Transfer:"})
+                div4.add({type = "flow", direction = "horizontal", name = "transfer_config"})
+            end
+            local transfer_config = frame["div4"]["transfer_config"]
+            transfer_config.clear()
+            fillTransferConfig(transfer_config, extractor.transfer)
+        else
+            if frame["div4"] then
+                frame["div4"].destroy()
+            end
+        end
+
+        ::continue::
+    end
+end
+
 
 function createTransferConfig(config)
     local transferConfig = {}
@@ -228,5 +293,32 @@ function createTransferConfig(config)
     return transferConfig
 end
 
--- todo update gui when connected to spidertron or items are transferred
+function createItemIcon(parent, item)
+    local style = parent.add({type = "sprite", sprite = "item/" .. item.name,
+                              resize_to_sprite = false}).style
+    style.width = 20
+    style.height = 20
+    if item.count then
+        style = parent.add({type = "label", caption = item.count}).style
+        style.top_margin = 4
+        style.left_margin = -12
+        style.font = "count-font"
+    end
+end
+
+function createStatusLabel(parent, spidertron)
+    local caption = spidertron and "Connected" or "None"
+    parent.add({type = "label", caption = caption, name = "state_label"}).style.font_color =
+    spidertron and {g = 1} or {r = 1}
+end
+
+function fillTransferConfig(transfer_config, transfer)
+    if #transfer == 0 then
+        transfer_config.add({type = "label", caption = "Done"}).style.font_color = {g = 1}
+    end
+    for _,item in pairs(transfer) do
+        createItemIcon(transfer_config, item)
+    end
+end
+
 -- todo update transferConfig when config is changed

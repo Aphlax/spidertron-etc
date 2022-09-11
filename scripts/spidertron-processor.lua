@@ -99,7 +99,7 @@ function SpidertronProcessor.update(tick)
         if not spidertron then goto continue end
         input.remove({ name = spidertron_item.name, count = 1})
         
-        for _,i in pairs(range(1000)) do
+        for i = 1,1000 do
             local item = processor.entity.get_request_slot(i)
             if item then
                 spidertron.set_vehicle_logistic_slot(i,
