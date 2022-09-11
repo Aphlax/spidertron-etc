@@ -3,7 +3,6 @@ local extractorAnimation = animationFactory({
     width = 192,
     height = 192,
     shift = { 0, 0 },
-    scale = 0.7,
     frames = 1,
     frames_per_line = 1,
     offset = 0,
