@@ -25,6 +25,20 @@ local sender = {
     -- Container.
     inventory_size = 1,
     enable_inventory_bar = false,
+    circuit_wire_connection_point = {
+        wire = {red = {-0.3, -0.3}, green = {0.3, -0.3}},
+        shadow = {red = {0.3, 0.2}, green = {0.9, 0.2}},
+    },
+    circuit_wire_max_distance = 10,
 }
 
-data:extend({ sender })
+local launch_signal = {
+    type = "virtual-signal",
+    name = "spidertron-launch",
+    icon = "__spidertron-fef__/graphics/icon/spidertron-launch.png",
+    icon_size = 64,
+    subgroup = "virtual-signal-special",
+    order = "a[special]-[spidertron]",
+}
+
+data:extend({ sender, launch_signal })

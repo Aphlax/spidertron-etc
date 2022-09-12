@@ -120,9 +120,3 @@ function SpidertronProcessor.update(tick)
     end
 end
 Events.repeatingTask(60, SpidertronProcessor.update)
-
-
-
-
-
-

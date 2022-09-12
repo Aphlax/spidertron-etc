@@ -4,6 +4,7 @@ SpidertronExtractor.config_name = "spidertron-extractor-config"
 SpidertronExtractor.window_name = "spidertron-extractor-frame"
 SpidertronExtractor.button_name = "spidertron-extractor-config-button"
 
+local createTransferConfig, createItemIcon, fillTransferConfigGui
 local MIN_DISTANCE = 8
 
 function SpidertronExtractor.on_create(event)
