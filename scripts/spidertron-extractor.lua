@@ -271,9 +271,7 @@ Events.addListener(defines.events.on_gui_click, SpidertronExtractor.on_gui_click
 function SpidertronExtractor.on_gui_update(extractor)
     for _,player in pairs(game.players) do
         local frame = player.gui.relative[SpidertronExtractor.window_name]
-        if not frame then
-            goto continue
-        end
+        if not frame or player.opened.unit_number ~= extractor.entity.unit_number then goto continue end
 
         local state_label = frame["div3"]["state_label"]
         state_label.caption = extractor.spidertron and "Connected" or "None"
