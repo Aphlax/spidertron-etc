@@ -1,8 +1,11 @@
 local SpidertronExtractor = {}
 SpidertronExtractor.name = "spidertron-extractor"
 SpidertronExtractor.config_name = "spidertron-extractor-config"
+SpidertronExtractor.signal_name = "spidertron-extractor-signal"
 SpidertronExtractor.window_name = "spidertron-extractor-frame"
 SpidertronExtractor.button_name = "spidertron-extractor-config-button"
+SpidertronExtractor.docked_signal = "spidertron-docked"
+SpidertronExtractor.transfer_complete_signal = "spidertron-transfer-complete"
 
 local createTransferConfig, createItemIcon, fillTransferConfigGui
 local MIN_DISTANCE = 8
@@ -52,11 +55,24 @@ function SpidertronExtractor.on_create(event)
     })
     config.destructible = false
 
+    -- Create signal constant combinator
+    local signal = entity.surface.create_entity({
+        force = entity.force,
+        name = SpidertronExtractor.signal_name,
+        position = translate(entity.position, 0.5, -0.5),
+        create_build_effect_smoke = false,
+    })
+    signal.destructible = false
+
     -- Store processor.
     global.spidertron_extractors = global.spidertron_extractors or {}
     global.spidertron_extractors[entity.unit_number] = {
         entity = entity,
         config = config,
+        signal = signal,
+        spidertron = nil,
+        transfer = nil,
+        transfer_config = nil,
     }
     global.spidertron_extractor_configs = global.spidertron_extractor_configs or {}
     global.spidertron_extractor_configs[config.unit_number] = entity.unit_number
@@ -72,6 +88,9 @@ function SpidertronExtractor.delete(extractor, unit_number)
     if extractor.config.valid then
         global.spidertron_extractor_configs[extractor.config.unit_number] = nil
         extractor.config.destroy()
+    end
+    if extractor.signal.valid then
+        extractor.signal.destroy()
     end
     global.spidertron_extractors[unit_number] = nil
 end
@@ -89,12 +108,13 @@ Events.addListener(defines.events.script_raised_destroy, SpidertronExtractor.on_
 
 function SpidertronExtractor.update(tick)
     for unit_number, extractor in pairs(global.spidertron_extractors or {}) do
-        if not extractor.entity.valid or not extractor.config.valid then
+        if not extractor.entity.valid or not extractor.config.valid or not extractor.signal.valid then
             SpidertronExtractor.delete(extractor, unit_number)
             goto continue
         end
         local target = translate(extractor.entity.position, 0, 1)
 
+        -- connect with spidertron
         if not extractor.spidertron then
             -- check if there is a spidertron near.
             local spiders = extractor.entity.surface.find_entities_filtered({
@@ -149,6 +169,10 @@ function SpidertronExtractor.update(tick)
         end
 
         if not extractor.spidertron then
+            local ctrl = extractor.signal.get_or_create_control_behavior()
+            for i = 1, ctrl.signals_count do
+                ctrl.set_signal(i, nil)
+            end
             goto continue
         end
 
@@ -164,18 +188,45 @@ function SpidertronExtractor.update(tick)
             item_stack = item_stack or trunk.find_item_stack(item.name)
             if item_stack then
                 local amount = math.min(2, item.count, insertable_count, item_stack.count)
-                inventory.remove({ name = item.name, count = amount })
-                output.insert({ name = item.name, count = amount })
+                inventory.remove({name = item.name, count = amount})
+                output.insert({name = item.name, count = amount})
                 if item.count == amount then
                     table.remove(extractor.transfer, i)
                 else
                     item.count = item.count - amount
                 end
                 SpidertronExtractor.on_gui_update(extractor)
-                goto continue
+                break
             end
             ::continue3::
         end
+
+        -- set signal
+        local ammo = extractor.spidertron.get_inventory(defines.inventory.spider_ammo)
+        local item_signals = trunk.get_contents()
+        for name, count in pairs(trash.get_contents()) do
+            item_signals[name] = (item_signals[name] or 0) + count
+        end
+        for name, count in pairs(ammo.get_contents()) do
+            item_signals[name] = (item_signals[name] or 0) + count
+        end
+        local ctrl = extractor.signal.get_or_create_control_behavior()
+        ctrl.set_signal(1,
+                {signal = {type = "virtual", name = SpidertronExtractor.docked_signal}, count = 1})
+        local slot = 2
+        if #extractor.transfer == 0 then
+            local signal = {type = "virtual", name = SpidertronExtractor.transfer_complete_signal}
+            ctrl.set_signal(2, {signal = signal, count = 1})
+            slot = 3
+        end
+        for name, count in pairs(item_signals) do
+            ctrl.set_signal(slot, {signal = {type = "item", name = name}, count = count})
+            slot = slot + 1
+        end
+        for i = slot, ctrl.signals_count do
+            ctrl.set_signal(i, nil)
+        end
+
         ::continue::
     end
 end
@@ -183,14 +234,14 @@ Events.repeatingTask(30, SpidertronExtractor.update)
 
 
 function SpidertronExtractor.on_open_gui(event)
-    if event.gui_type ~= defines.gui_type.entity or
-            not event.entity or event.entity.name ~= SpidertronExtractor.name then
+    if event.gui_type ~= defines.gui_type.entity or not event.entity then return end
+    if event.entity.name == SpidertronExtractor.signal_name then
+        game.get_player(event.player_index).opened = nil
         return
     end
+    if event.entity.name ~= SpidertronExtractor.name then return end
     local extractor = global.spidertron_extractors[event.entity.unit_number]
-    if not extractor or not extractor.entity.valid then
-        return
-    end
+    if not extractor or not extractor.entity.valid then return end
 
     local player = game.get_player(event.player_index)
     local frame = player.gui.relative.add({type = "frame", name = SpidertronExtractor.window_name,
@@ -255,7 +306,8 @@ end
 Events.addListener(defines.events.on_gui_closed, SpidertronExtractor.on_close_gui)
 
 function SpidertronExtractor.on_gui_click(event)
-    if not event.element or event.element.name ~= SpidertronExtractor.button_name then
+    if not event.element or not event.element.valid or
+            event.element.name ~= SpidertronExtractor.button_name then
         return
     end
     local player = game.get_player(event.player_index)

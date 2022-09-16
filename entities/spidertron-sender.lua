@@ -38,7 +38,7 @@ local launch_signal = {
     icon = "__spidertron-fef__/graphics/icon/spidertron-launch.png",
     icon_size = 64,
     subgroup = "virtual-signal-special",
-    order = "a[special]-[spidertron]",
+    order = "f[spidertron]-[1]",
 }
 
-data:extend({ sender, launch_signal })
+data:extend({sender, launch_signal})

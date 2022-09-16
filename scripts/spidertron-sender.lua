@@ -169,7 +169,8 @@ end
 Events.addListener(defines.events.on_gui_closed, SpidertronSender.on_close_gui)
 
 function SpidertronSender.on_gui_click(event)
-    if not event.element or event.element.name ~= SpidertronSender.record_button then
+    if not event.element or not event.element.valid or
+            event.element.name ~= SpidertronSender.record_button then
         return
     end
     local player = game.get_player(event.player_index)
