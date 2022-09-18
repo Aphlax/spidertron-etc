@@ -89,7 +89,7 @@ function SpidertronExtractor.delete(extractor, unit_number)
         global.spidertron_extractor_configs[extractor.config.unit_number] = nil
         extractor.config.destroy()
     end
-    if extractor.signal.valid then
+    if extractor.signal and extractor.signal.valid then
         extractor.signal.destroy()
     end
     global.spidertron_extractors[unit_number] = nil

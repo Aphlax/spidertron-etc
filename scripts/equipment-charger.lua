@@ -1,6 +1,9 @@
 local EquipmentCharger = {}
 EquipmentCharger.name = "equipment-charger"
-EquipmentCharger.max_transfer_per_update = 100000000 -- About 12x the max charging rate.
+EquipmentCharger.pad_name = "equipment-charger-pad"
+
+local MAX_TRANSFER_PER_UPDATE = 100000000 -- About 12x the max charging rate.
+local PAD_MAX_TRANSFER_PER_UPDATE = MAX_TRANSFER_PER_UPDATE / 50 -- About 5x the max charging rate.
 
 function EquipmentCharger.on_create(event)
     local entity
@@ -10,8 +13,14 @@ function EquipmentCharger.on_create(event)
     if event.created_entity and event.created_entity.valid then
         entity = event.created_entity
     end
+
+    if entity and entity.name == EquipmentCharger.pad_name then
+        global.equipment_charger_pads = global.equipment_charger_pads or {}
+        global.equipment_charger_pads[entity.unit_number] = entity
+        return
+    end
     if not entity or entity.name ~= EquipmentCharger.name then return end
-    
+
     -- Create input chest.
     local input = entity.surface.create_entity({
         force = entity.force,
@@ -20,7 +29,7 @@ function EquipmentCharger.on_create(event)
         create_build_effect_smoke = false,
     })
     input.destructible = false
-    
+
     -- Create output chest.
     local output = entity.surface.create_entity({
         force = entity.force,
@@ -29,16 +38,15 @@ function EquipmentCharger.on_create(event)
         create_build_effect_smoke = false,
     })
     output.destructible = false
-    
+
     -- Store charger.
     global.spidertron_chargers = global.spidertron_chargers or {}
     global.spidertron_chargers[entity.unit_number] = {
         entity = entity,
-        unit_number = entity.unit_number,
         input = input,
         output = output,
     }
-    
+
     entity.active = false
     entity.rotatable = false
 end
@@ -88,37 +96,58 @@ function EquipmentCharger.update(tick)
         local output = charger.output.get_inventory(defines.inventory.chest)
         if input.is_empty() or not output.is_empty() then goto continue end
         local equipment_item = input[1]
-        if not equipment_item.valid_for_read or equipment_item.type ~= "item-with-entity-data" then goto continue end
-        if not equipment_item.grid then
-            equipment_item.create_grid()
-        end
-        if not equipment_item.grid then goto continue end
 
-        local transfer_available = EquipmentCharger.max_transfer_per_update
-        for _, equipment in pairs(equipment_item.grid.equipment or {}) do
-            if equipment.energy < equipment.max_energy then
-                local transfer = math.min(equipment.max_energy - equipment.energy,
-                        charger.entity.energy, transfer_available)
-                charger.entity.energy = charger.entity.energy - transfer
-                equipment.energy = equipment.energy + transfer
-                transfer_available = transfer_available - transfer
-            end
-            if transfer_available == 0 or charger.entity.energy == 0 then goto continue end
+        if EquipmentCharger.chargeItem(charger.entity, equipment_item, MAX_TRANSFER_PER_UPDATE) then
+            -- Fully charged.
+            output.insert(equipment_item)
+            input.remove({ name = equipment_item.name, count = 1 })
         end
         
-        -- Fully charged.
-        output.insert(equipment_item)
-        input.remove({ name = equipment_item.name, count = 1 })
-        
+        ::continue::
+    end
+    for unit_number, charger in pairs(global.equipment_charger_pads or {}) do
+        if not charger.valid then
+            global.equipment_charger_pads[unit_number] = nil
+            goto continue
+        end
+
+        local characters = charger.surface.find_entities_filtered({
+            type = "character",
+            area = {
+                left_top = translate(charger.position, -1.95, -1.95),
+                right_bottom = translate(charger.position, 1.95, 1.95),
+            },
+        })
+        for _, character in pairs(characters) do
+            local armor = character.get_inventory(defines.inventory.character_armor)
+            if not armor.is_empty() then
+                EquipmentCharger.chargeItem(charger, armor[1], PAD_MAX_TRANSFER_PER_UPDATE)
+            end
+        end
+
         ::continue::
     end
 end
 Events.repeatingTask(10, EquipmentCharger.update)
 
+-- Returns true if all parts have been charged.
+function EquipmentCharger.chargeItem(entity, equipment_item, transfer_available)
+    if not equipment_item.valid_for_read then return false end
+    if not equipment_item.grid and equipment_item.type == "item-with-entity-data" then
+        equipment_item.create_grid()
+    end
+    if not equipment_item.grid then return false end
 
+    for _, equipment in pairs(equipment_item.grid.equipment or {}) do
+        if equipment.energy < equipment.max_energy then
+            local transfer = math.min(equipment.max_energy - equipment.energy,
+                    entity.energy, transfer_available)
+            entity.energy = entity.energy - transfer
+            equipment.energy = equipment.energy + transfer
+            transfer_available = transfer_available - transfer
+        end
+        if transfer_available == 0 or entity.energy == 0 then return false end
+    end
 
-
-
-
-
-
+    return true
+end
