@@ -17,43 +17,46 @@ local blank_image = {
 }
 
 local extractor = {
-    type = "container",
+    type = "logistic-container",
     name = "spidertron-extractor",
     icon = "__spidertron-fef__/graphics/icon/spidertron-extractor.png",
     icon_size = 64,
-    flags = {"placeable-neutral", "player-creation", "no-automated-item-insertion"},
+    flags = {"placeable-player", "player-creation", "not-rotatable", "no-automated-item-insertion", "no-automated-item-removal"},
     max_health = 250,
+    alert_icon_shift = util.by_pixel(0, -12),
     open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43 },
     close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43 },
     se_allow_in_space = true,
     picture = extractorAnimation(),
-    inventory_size = 1,
-    enable_inventory_bar = false,
     collision_box = {{-0.8, -0.8},{0.8, 0.8}},
     selection_box = {{-1, -1},{1, 1}},
+
+    -- container
+    inventory_size = 0,
+    enable_inventory_bar = false,
+    logistic_mode = "buffer",
+    max_logistic_slots = 64,
+    render_not_in_network_icon = false,
 }
 
 local config = {
-    type = "logistic-container",
-    name = "spidertron-extractor-config",
+    type = "container",
+    name = "spidertron-extractor-output",
     icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
     icon_size = 64,
-    flags = {"placeable-player", "not-blueprintable", "not-rotatable", "not-deconstructable", "placeable-off-grid", "no-automated-item-insertion", "no-automated-item-removal"},
+    flags = {"placeable-player", "not-blueprintable", "not-rotatable", "not-deconstructable", "placeable-off-grid", "no-automated-item-insertion"},
     max_health = 1000,
-    alert_icon_shift = util.by_pixel(0, -12),
     se_allow_in_space = true,
     allow_copy_paste = false,
-    collision_box = {{-0.5, -0.5}, {0.5, 0.5}},
-    selection_box = {{-0.1, -0.1}, {0.1, 0.1}},
+    collision_box = {{-0.6, -0.6}, {0.6, 0.6}},
+    selection_box = {{-0.6, -0.6}, {0.6, 0.6}},
     vehicle_impact_sound =  {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
     picture = blank_image,
     fast_replaceable_group = "",
 
     -- container
-    inventory_size = 0,
-    logistic_mode = "buffer",
-    max_logistic_slots = 64,
-    render_not_in_network_icon = false,
+    inventory_size = 1,
+    enable_inventory_bar = false,
     selection_priority = 0,
 }
 

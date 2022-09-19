@@ -1,9 +1,9 @@
 local SpidertronExtractor = {}
 SpidertronExtractor.name = "spidertron-extractor"
-SpidertronExtractor.config_name = "spidertron-extractor-config"
+SpidertronExtractor.output_name = "spidertron-extractor-output"
 SpidertronExtractor.signal_name = "spidertron-extractor-signal"
 SpidertronExtractor.window_name = "spidertron-extractor-frame"
-SpidertronExtractor.button_name = "spidertron-extractor-config-button"
+SpidertronExtractor.slot_name = "spidertron-extractor-slot"
 SpidertronExtractor.docked_signal = "spidertron-docked"
 SpidertronExtractor.transfer_complete_signal = "spidertron-transfer-complete"
 
@@ -46,14 +46,14 @@ function SpidertronExtractor.on_create(event)
         ::continue::
     end
 
-    -- Create config chest.
-    local config = entity.surface.create_entity({
+    -- Create output chest.
+    local output = entity.surface.create_entity({
         force = entity.force,
-        name = SpidertronExtractor.config_name,
+        name = SpidertronExtractor.output_name,
         position = entity.position,
         create_build_effect_smoke = false,
     })
-    config.destructible = false
+    output.destructible = false
 
     -- Create signal constant combinator
     local signal = entity.surface.create_entity({
@@ -68,14 +68,12 @@ function SpidertronExtractor.on_create(event)
     global.spidertron_extractors = global.spidertron_extractors or {}
     global.spidertron_extractors[entity.unit_number] = {
         entity = entity,
-        config = config,
+        output = output,
         signal = signal,
         spidertron = nil,
         transfer = nil,
         transfer_config = nil,
     }
-    global.spidertron_extractor_configs = global.spidertron_extractor_configs or {}
-    global.spidertron_extractor_configs[config.unit_number] = entity.unit_number
 
     entity.rotatable = false
 end
@@ -85,11 +83,10 @@ Events.addListener(defines.events.script_raised_built, SpidertronExtractor.on_cr
 Events.addListener(defines.events.script_raised_revive, SpidertronExtractor.on_create)
 
 function SpidertronExtractor.delete(extractor, unit_number)
-    if extractor.config.valid then
-        global.spidertron_extractor_configs[extractor.config.unit_number] = nil
-        extractor.config.destroy()
+    if extractor.output.valid then
+        extractor.output.destroy()
     end
-    if extractor.signal and extractor.signal.valid then
+    if extractor.signal.valid then
         extractor.signal.destroy()
     end
     global.spidertron_extractors[unit_number] = nil
@@ -108,7 +105,7 @@ Events.addListener(defines.events.script_raised_destroy, SpidertronExtractor.on_
 
 function SpidertronExtractor.update(tick)
     for unit_number, extractor in pairs(global.spidertron_extractors or {}) do
-        if not extractor.entity.valid or not extractor.config.valid or not extractor.signal.valid then
+        if not extractor.entity.valid or not extractor.output.valid or not extractor.signal.valid then
             SpidertronExtractor.delete(extractor, unit_number)
             goto continue
         end
@@ -137,9 +134,9 @@ function SpidertronExtractor.update(tick)
                 if v_length(v_sub(spider.position, target)) < 1 and spider.speed == 0 then
                     extractor.spidertron = spider
                     -- The current state of the transfer.
-                    extractor.transfer = createTransferConfig(extractor.config)
+                    extractor.transfer = createTransferConfig(extractor.entity)
                     -- The starting state of the transfer (for when it changes mid-transfer).
-                    extractor.transfer_config = createTransferConfig(extractor.config)
+                    extractor.transfer_config = createTransferConfig(extractor.entity)
                     SpidertronExtractor.on_gui_update(extractor)
                     break
                 end
@@ -179,7 +176,7 @@ function SpidertronExtractor.update(tick)
         -- transfer items
         local trunk = extractor.spidertron.get_inventory(defines.inventory.spider_trunk)
         local trash = extractor.spidertron.get_inventory(defines.inventory.spider_trash)
-        local output = extractor.entity.get_inventory(defines.inventory.chest)
+        local output = extractor.output.get_inventory(defines.inventory.chest)
         for i, item in ipairs(extractor.transfer or {}) do
             local insertable_count = output.get_insertable_count(item.name)
             if insertable_count == 0 then goto continue3 end
@@ -233,6 +230,11 @@ end
 Events.repeatingTask(30, SpidertronExtractor.update)
 
 
+---
+-- Todo: SpidertronExtractor.on_transfer_update(extractor)
+-- Todo: extractor.transfer can be nil or {}
+---
+
 function SpidertronExtractor.on_open_gui(event)
     if event.gui_type ~= defines.gui_type.entity or not event.entity then return end
     if event.entity.name == SpidertronExtractor.signal_name then
@@ -243,41 +245,32 @@ function SpidertronExtractor.on_open_gui(event)
     local extractor = global.spidertron_extractors[event.entity.unit_number]
     if not extractor or not extractor.entity.valid then return end
 
-    local player = game.get_player(event.player_index)
-    local frame = player.gui.relative.add({type = "frame", name = SpidertronExtractor.window_name,
-                                           direction = "vertical"})
-    frame.anchor = { gui = defines.relative_gui_type.container_gui,
+    local anchor = { gui = defines.relative_gui_type.container_gui,
                      position = defines.relative_gui_position.right }
-    frame.style.size = {165, 165}
+    local frame = GuiUtils.createFrame(event, SpidertronExtractor.window_name, anchor)
 
-    local div1 = frame.add({type = "flow", direction = "horizontal"})
-    div1.add({type = "label", caption = "Configure"}).style.top_margin = 10
-    div1.add({type = "sprite-button", name = SpidertronExtractor.button_name,
-              sprite = "item/iron-gear-wheel"})
-
-    local div2 = frame.add({type = "flow", direction = "horizontal"})
-    div2.add({type = "label", caption = "Items:"}).style.bottom_margin = 4
-    local item_config = div2.add({type = "flow", direction = "horizontal", name = "item_config"})
-    for i = 1,64 do
-        local item = extractor.config.get_request_slot(i)
-        if item then
-            createItemIcon(item_config, item)
-        end
-    end
-    if #item_config.children == 0 then
-        item_config.add({type = "label", caption = "Configure Items"}).style.font_color = {r = 1}
+    local div1 = frame.add({type = "flow", direction = "horizontal", name = "div1"})
+    local output = extractor.output.get_inventory(defines.inventory.chest)
+    local slot = div1.add({type = "button", name = SpidertronExtractor.slot_name,
+                           style = "inventory_slot"})
+    slot.style.top_margin = 8
+    slot.style.bottom_margin = 8
+    if not output.is_empty() then
+        createSlotIcon(slot, output[1])
     end
 
-    local div3 = frame.add({type = "flow", direction = "horizontal", name = "div3"})
-    div3.add({type = "label", caption = "Spidertron:"}).style.bottom_margin = 4
+    frame.add({type = "line"}).style.bottom_margin = 8
+
+    local div2 = frame.add({type = "flow", direction = "horizontal", name = "div2"})
+    div2.add({type = "label", caption = "Spidertron:"}).style.bottom_margin = 4
     local caption = extractor.spidertron and "Connected" or "None"
-    div3.add({type = "label", caption = caption, name = "state_label"}).style.font_color =
+    div2.add({type = "label", caption = caption, name = "state_label"}).style.font_color =
         extractor.spidertron and {g = 1} or {r = 1}
 
     if extractor.transfer then
-        local div4 = frame.add({type = "flow", direction = "horizontal", name = "div4"})
-        div4.add({type = "label", caption = "Transfer:"})
-        local transfer_config = div4.add({type = "flow", direction = "horizontal",
+        local div3 = frame.add({type = "flow", direction = "horizontal", name = "div3"})
+        div3.add({type = "label", caption = "Transfer:"})
+        local transfer_config = div3.add({type = "flow", direction = "horizontal",
                                           name = "transfer_config"})
         fillTransferConfigGui(transfer_config, extractor.transfer)
     end
@@ -296,27 +289,19 @@ function SpidertronExtractor.on_close_gui(event)
         end
         return
     end
-
-    if event.entity.name == SpidertronExtractor.config_name then
-        local unit_number = (global.spidertron_extractor_configs or {})[event.entity.unit_number]
-        if not unit_number or not (global.spidertron_extractors or {})[unit_number] then return end
-        SpidertronExtractor.on_transfer_update((global.spidertron_extractors or {})[unit_number])
-    end
 end
 Events.addListener(defines.events.on_gui_closed, SpidertronExtractor.on_close_gui)
 
 function SpidertronExtractor.on_gui_click(event)
     if not event.element or not event.element.valid or
-            event.element.name ~= SpidertronExtractor.button_name then
+            event.element.name ~= SpidertronExtractor.slot_name then
         return
     end
     local player = game.get_player(event.player_index)
     local extractor = global.spidertron_extractors[player.opened.unit_number]
-    if not extractor then
-        return
-    end
+    if not extractor then return end
 
-    player.opened = extractor.config
+    player.opened = extractor.output
 end
 Events.addListener(defines.events.on_gui_click, SpidertronExtractor.on_gui_click)
 
@@ -325,22 +310,29 @@ function SpidertronExtractor.on_gui_update(extractor)
         local frame = player.gui.relative[SpidertronExtractor.window_name]
         if not frame or player.opened.unit_number ~= extractor.entity.unit_number then goto continue end
 
-        local state_label = frame["div3"]["state_label"]
+        local slot = frame["div1"][SpidertronExtractor.slot_name]
+        slot.clear()
+        local output = extractor.output.get_inventory(defines.inventory.chest)
+        if not output.is_empty() then
+            createSlotIcon(slot, output[1])
+        end
+
+        local state_label = frame["div2"]["state_label"]
         state_label.caption = extractor.spidertron and "Connected" or "None"
         state_label.style.font_color = extractor.spidertron and {g = 1} or {r = 1}
 
         if extractor.transfer then
-            if not frame["div4"] then
-                local div4 = frame.add({type = "flow", direction = "horizontal", name = "div4"})
-                div4.add({type = "label", caption = "Transfer:"})
-                div4.add({type = "flow", direction = "horizontal", name = "transfer_config"})
+            if not frame["div3"] then
+                local div3 = frame.add({type = "flow", direction = "horizontal", name = "div3"})
+                div3.add({type = "label", caption = "Transfer:"})
+                div3.add({type = "flow", direction = "horizontal", name = "transfer_config"})
             end
-            local transfer_config = frame["div4"]["transfer_config"]
+            local transfer_config = frame["div3"]["transfer_config"]
             transfer_config.clear()
             fillTransferConfigGui(transfer_config, extractor.transfer)
         else
-            if frame["div4"] then
-                frame["div4"].destroy()
+            if frame["div3"] then
+                frame["div3"].destroy()
             end
         end
 
@@ -349,7 +341,7 @@ function SpidertronExtractor.on_gui_update(extractor)
 end
 
 function SpidertronExtractor.on_transfer_update(extractor)
-    local new_config = createTransferConfig(extractor.config)
+    local new_config = createTransferConfig(extractor.entity)
     for _,item in pairs(new_config) do
         local old
         for _,old_item in pairs(extractor.transfer_config or {}) do
@@ -380,10 +372,10 @@ function SpidertronExtractor.on_transfer_update(extractor)
     extractor.transfer_config = new_config
 end
 
-function createTransferConfig(config)
+function createTransferConfig(entity)
     local transferConfig = {}
     for i=1, 64 do
-        local item = config.get_request_slot(i)
+        local item = entity.get_request_slot(i)
         if item then
             transferConfig[#transferConfig + 1] = { name = item.name, count = item.count }
         end
@@ -399,6 +391,23 @@ function createItemIcon(parent, item)
     if item.count then
         style = parent.add({type = "label", caption = item.count}).style
         style.top_margin = 4
+        style.left_margin = #tostring(item.count) * -6 - 6
+        style.font = "count-font"
+    end
+end
+
+function createSlotIcon(slot, item)
+    local icon = slot.add({type = "sprite", sprite = "item/" .. item.name,
+                            resize_to_sprite = false, ignored_by_interaction = true})
+    icon.style.width = 32
+    icon.style.height = 32
+    --icon.style.horizontal_align = "right"
+    --icon.style.vertical_align = "bottom"
+
+    if item.count then
+        style = icon.add({type = "label", caption = item.count,
+                          ignored_by_interaction = true}).style
+        style.top_margin = 24
         style.left_margin = #tostring(item.count) * -6 - 6
         style.font = "count-font"
     end

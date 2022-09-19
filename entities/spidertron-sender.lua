@@ -13,7 +13,7 @@ local sender = {
     name = "spidertron-sender",
     icon = "__spidertron-fef__/graphics/icon/spidertron-sender.png",
     icon_size = 64,
-    flags = {"placeable-neutral", "player-creation", "no-automated-item-insertion", "no-automated-item-removal"},
+    flags = {"placeable-player", "player-creation", "no-automated-item-insertion", "no-automated-item-removal"},
     max_health = 250,
     open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43 },
     close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43 },
