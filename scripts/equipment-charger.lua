@@ -114,8 +114,8 @@ function EquipmentCharger.update(tick)
         local characters = charger.surface.find_entities_filtered({
             type = "character",
             area = {
-                left_top = translate(charger.position, -1.95, -1.95),
-                right_bottom = translate(charger.position, 1.95, 1.95),
+                left_top = translate(charger.position, -1.95, 0),
+                right_bottom = translate(charger.position, 1.95, 1.95 * 2),
             },
         })
         for _, character in pairs(characters) do
