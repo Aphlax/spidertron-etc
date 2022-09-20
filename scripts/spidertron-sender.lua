@@ -64,7 +64,7 @@ function SpidertronSender.update(tick)
         ::continue::
     end
 end
-Events.repeatingTask(60, SpidertronSender.update)
+Events.repeatingTask(61, SpidertronSender.update)
 
 function SpidertronSender.update_connection_state(sender)
     local inventory = sender.entity.get_inventory(defines.inventory.chest)
@@ -132,7 +132,7 @@ function SpidertronSender.on_open_gui(event)
     local frame = GuiUtils.createFrame(event, SpidertronSender.window_name, anchor)
 
     local div1 = frame.add({type = "flow", direction = "horizontal", name = "div1"})
-    div1.add({type = "label", caption = "State: "})
+    div1.add({type = "label", caption = {"spidertron-etc.spidertron-sender-state"}})
     local state_label = div1.add({type = "label", name = "state_message", caption = ""})
     local signal_icon = div1.add({type = "sprite", name = "signal_icon", resize_to_sprite = false,
                                   sprite = "virtual-signal/" .. SpidertronSender.launch_signal})
@@ -150,7 +150,7 @@ function SpidertronSender.on_open_gui(event)
 
     local div3 = frame.add({type = "flow", direction = "horizontal"})
     local record_button = div3.add({type = "button", name = SpidertronSender.record_button,
-                                    caption = "Record waypoints"})
+                                    caption = {"spidertron-etc.spidertron-sender-record-button"}})
     record_button.style.horizontally_stretchable = true
 end
 Events.addListener(defines.events.on_gui_opened, SpidertronSender.on_open_gui)
@@ -231,7 +231,8 @@ function fillWaypoints(sender, list_div)
 
         local label_div = camera.add({type = "frame"})
         label_div.style.padding = 0
-        label_div.add({type = "label", caption = "Waypoint " .. i})
+        label_div.add({type = "label",
+                       caption = {"spidertron-etc.spidertron-sender-waypoint", i}})
     end
     while #list_div.children < MAX_PATH_LENGTH do
         local div = list_div.add({type = "flow"})
@@ -242,22 +243,22 @@ end
 
 function setStateMessage(sender, state_label, icon)
     if sender.state == SpidertronSender.State.insert_remote then
-        state_label.caption = "Insert spidertron remote."
+        state_label.caption = {"spidertron-etc.spidertron-sender-insert-remote"}
         state_label.style.font_color = {r = 1}
     elseif sender.state == SpidertronSender.State.remote_not_connected then
-        state_label.caption = "Remote is not connected."
+        state_label.caption = {"spidertron-etc.spidertron-sender-not-connected"}
         state_label.style.font_color = {r = 1}
     elseif sender.state == SpidertronSender.State.spidertron_far_away then
-        state_label.caption = "Spidertron too far away."
+        state_label.caption = {"spidertron-etc.spidertron-sender-too-far-away"}
         state_label.style.font_color = {r = 1}
     elseif sender.state == SpidertronSender.State.record_path then
-        state_label.caption = "Record spidertron instructions."
+        state_label.caption = {"spidertron-etc.spidertron-sender-record-path"}
         state_label.style.font_color = {r = 1, g = 1}
     elseif sender.state == SpidertronSender.State.path_too_long then
-        state_label.caption = "Too many waypoints, recorded " .. MAX_PATH_LENGTH .. "."
+        state_label.caption = {"spidertron-etc.spidertron-sender-too-many-steps", MAX_PATH_LENGTH}
         state_label.style.font_color = {r = 1, g = 1}
     elseif sender.state == SpidertronSender.State.ready then
-        state_label.caption = "Ready. Send signal:"
+        state_label.caption = {"spidertron-etc.spidertron-sender-ready"}
         state_label.style.font_color = {g = 1}
     end
     icon.visible = sender.state == SpidertronSender.State.ready

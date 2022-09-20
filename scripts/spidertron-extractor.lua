@@ -255,8 +255,10 @@ function SpidertronExtractor.on_open_gui(event)
     frame.add({type = "line"}).style.bottom_margin = 8
 
     local div2 = frame.add({type = "flow", direction = "horizontal", name = "div2"})
-    div2.add({type = "label", caption = "Spidertron:"}).style.bottom_margin = 4
-    local caption = extractor.spidertron and "Connected" or "None"
+    div2.add({type = "label", caption = {"spidertron-etc.spidertron-extractor-spidertron"}})
+            .style.bottom_margin = 4
+    local caption = extractor.spidertron and {"spidertron-etc.spidertron-extractor-connected"} or
+            {"spidertron-etc.spidertron-extractor-none"}
     div2.add({type = "label", caption = caption, name = "state_label"}).style.font_color =
         extractor.spidertron and {g = 1} or {r = 1}
 
@@ -264,16 +266,18 @@ function SpidertronExtractor.on_open_gui(event)
     div3.style.height = 24
     div3.style.bottom_margin = 8
     if extractor.transfer then
-        div3.add({type = "label", caption = "Transfer:"})
+        div3.add({type = "label", caption = {"spidertron-etc.spidertron-extractor-transfer"}})
         local transfer_config = div3.add({type = "flow", direction = "horizontal",
                                           name = "transfer_config"})
         fillTransferConfigGui(transfer_config, extractor.transfer)
     end
 
     frame.add({type = "line"}).style.bottom_margin = 8
-    frame.add({type = "label", caption = "Use the logistic request to configure which"})
-    frame.add({type = "label", caption = "items are taken out of the spidertron when"}).style.top_margin = -4
-    frame.add({type = "label", caption = "it docks."}).style.top_margin = -4
+    frame.add({type = "label", caption = {"spidertron-etc.spidertron-extractor-help-1"}})
+    frame.add({type = "label", caption = {"spidertron-etc.spidertron-extractor-help-2"}})
+            .style.top_margin = -4
+    frame.add({type = "label", caption = {"spidertron-etc.spidertron-extractor-help-3"}})
+            .style.top_margin = -4
 
 end
 Events.addListener(defines.events.on_gui_opened, SpidertronExtractor.on_open_gui)
@@ -317,12 +321,15 @@ function SpidertronExtractor.on_gui_update(extractor)
         GuiUtils.updateSlot(slot, output[1])
 
         local state_label = frame["div2"]["state_label"]
-        state_label.caption = extractor.spidertron and "Connected" or "None"
+        state_label.caption = extractor.spidertron and
+                {"spidertron-etc.spidertron-extractor-connected"} or
+                {"spidertron-etc.spidertron-extractor-none"}
         state_label.style.font_color = extractor.spidertron and {g = 1} or {r = 1}
 
         if extractor.transfer then
             if not frame["div3"]["transfer_config"] then
-                frame["div3"].add({type = "label", caption = "Transfer:"})
+                frame["div3"].add({type = "label",
+                                   caption = {"spidertron-etc.spidertron-extractor-transfer"}})
                 frame["div3"].add({type = "flow", direction = "horizontal", name = "transfer_config"})
             end
             local transfer_config = frame["div3"]["transfer_config"]
@@ -419,7 +426,9 @@ end
 
 function fillTransferConfigGui(transfer_config, transfer)
     if #transfer == 0 then
-        transfer_config.add({type = "label", caption = "Done"}).style.font_color = {g = 1}
+        transfer_config.add({type = "label",
+                             caption = {"spidertron-etc.spidertron-extractor-transfer-complete"}})
+                .style.font_color = {g = 1}
     end
     for i,item in ipairs(transfer) do
         if i > 8 then break end

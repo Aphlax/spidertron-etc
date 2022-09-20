@@ -39,7 +39,7 @@ local extractor = {
     render_not_in_network_icon = false,
 }
 
-local config = {
+local output = {
     type = "container",
     name = "spidertron-extractor-output",
     icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
@@ -120,4 +120,4 @@ local transfer_signal = {
     order = "f[spidertron]-[3]",
 }
 
-data:extend({extractor, config, signal, docked_signal, transfer_signal})
+data:extend({extractor, output, signal, docked_signal, transfer_signal})

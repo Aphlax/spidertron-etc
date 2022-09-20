@@ -11,7 +11,7 @@ function GuiUtils.createFrame(event, name, anchor)
     title_div.add({
         type = "label",
         style = "frame_title",
-        caption = { "spidertron-etc.settings-frame-title"},
+        caption = {"spidertron-etc.settings-frame-title"},
         ignored_by_interaction = true
     })
     local title_empty = title_div.add({
@@ -29,7 +29,7 @@ function GuiUtils.createFrame(event, name, anchor)
         name="goto_informatron_delivery_cannons",
         sprite = "virtual-signal/informatron",
         style="informatron_close_button",
-        tooltip={"space-exploration.informatron-open-help"}
+        tooltip={"spidertron-etc.informatron-open-help"}
     })
     title_informatron.style.width = 28
     title_informatron.style.height = 28
