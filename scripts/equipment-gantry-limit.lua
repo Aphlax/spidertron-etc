@@ -3,6 +3,21 @@ EquipmentGantryLimit.name = "equipment-gantry"
 EquipmentGantryLimit.chest_names =
         {"equipment-gantry-container-equipment", "equipment-gantry-container-equipment-horizontal"}
 
+function EquipmentGantryLimit.on_init()
+    global.equipment_gantry_chests = global.equipment_gantry_chests or {}
+    for _, surface in pairs(game.surfaces) do
+        for _, name in pairs(EquipmentGantryLimit.chest_names) do
+            local chests = surface.find_entities_filtered({name = name})
+            for _, chest in pairs(chests) do
+                if chest and chest.valid then
+                    global.equipment_gantry_chests[chest.unit_number] = chest
+                end
+            end
+        end
+    end
+end
+script.on_init(EquipmentGantryLimit.on_init)
+
 function EquipmentGantryLimit.on_create(event)
     local entity
     if event.entity and event.entity.valid then
