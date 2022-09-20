@@ -251,13 +251,9 @@ function SpidertronExtractor.on_open_gui(event)
 
     local div1 = frame.add({type = "flow", direction = "horizontal", name = "div1"})
     local output = extractor.output.get_inventory(defines.inventory.chest)
-    local slot = div1.add({type = "button", name = SpidertronExtractor.slot_name,
-                           style = "inventory_slot"})
+    local slot = GuiUtils.createSlot(div1, SpidertronExtractor.slot_name, output[1])
     slot.style.top_margin = 8
     slot.style.bottom_margin = 8
-    if not output.is_empty() then
-        createSlotIcon(slot, output[1])
-    end
 
     frame.add({type = "line"}).style.bottom_margin = 8
 
@@ -301,7 +297,8 @@ function SpidertronExtractor.on_gui_click(event)
     local extractor = global.spidertron_extractors[player.opened.unit_number]
     if not extractor then return end
 
-    player.opened = extractor.output
+    local output = extractor.output.get_inventory(defines.inventory.chest)
+    GuiUtils.clickSlot(event, output[1])
 end
 Events.addListener(defines.events.on_gui_click, SpidertronExtractor.on_gui_click)
 
@@ -311,11 +308,8 @@ function SpidertronExtractor.on_gui_update(extractor)
         if not frame or player.opened.unit_number ~= extractor.entity.unit_number then goto continue end
 
         local slot = frame["div1"][SpidertronExtractor.slot_name]
-        slot.clear()
         local output = extractor.output.get_inventory(defines.inventory.chest)
-        if not output.is_empty() then
-            createSlotIcon(slot, output[1])
-        end
+        GuiUtils.updateSlot(slot, output[1])
 
         local state_label = frame["div2"]["state_label"]
         state_label.caption = extractor.spidertron and "Connected" or "None"
@@ -391,23 +385,6 @@ function createItemIcon(parent, item)
     if item.count then
         style = parent.add({type = "label", caption = item.count}).style
         style.top_margin = 4
-        style.left_margin = #tostring(item.count) * -6 - 6
-        style.font = "count-font"
-    end
-end
-
-function createSlotIcon(slot, item)
-    local icon = slot.add({type = "sprite", sprite = "item/" .. item.name,
-                            resize_to_sprite = false, ignored_by_interaction = true})
-    icon.style.width = 32
-    icon.style.height = 32
-    --icon.style.horizontal_align = "right"
-    --icon.style.vertical_align = "bottom"
-
-    if item.count then
-        style = icon.add({type = "label", caption = item.count,
-                          ignored_by_interaction = true}).style
-        style.top_margin = 24
         style.left_margin = #tostring(item.count) * -6 - 6
         style.font = "count-font"
     end
