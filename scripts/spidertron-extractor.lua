@@ -9,6 +9,7 @@ SpidertronExtractor.transfer_complete_signal = "spidertron-transfer-complete"
 
 local createTransferConfig, createItemIcon, fillTransferConfigGui
 local MIN_DISTANCE = 8
+local NUMBER_CONFIG_SLOTS = 20
 
 function SpidertronExtractor.on_create(event)
     local entity
@@ -173,11 +174,13 @@ function SpidertronExtractor.update(tick)
             goto continue
         end
 
+        SpidertronExtractor.on_transfer_update(extractor)
+
         -- transfer items
         local trunk = extractor.spidertron.get_inventory(defines.inventory.spider_trunk)
         local trash = extractor.spidertron.get_inventory(defines.inventory.spider_trash)
         local output = extractor.output.get_inventory(defines.inventory.chest)
-        for i, item in ipairs(extractor.transfer or {}) do
+        for i, item in ipairs(extractor.transfer) do
             local insertable_count = output.get_insertable_count(item.name)
             if insertable_count == 0 then goto continue3 end
             local item_stack = trash.find_item_stack(item.name)
@@ -229,12 +232,6 @@ function SpidertronExtractor.update(tick)
 end
 Events.repeatingTask(30, SpidertronExtractor.update)
 
-
----
--- Todo: SpidertronExtractor.on_transfer_update(extractor)
--- Todo: extractor.transfer can be nil or {}
----
-
 function SpidertronExtractor.on_open_gui(event)
     if event.gui_type ~= defines.gui_type.entity or not event.entity then return end
     if event.entity.name == SpidertronExtractor.signal_name then
@@ -263,13 +260,21 @@ function SpidertronExtractor.on_open_gui(event)
     div2.add({type = "label", caption = caption, name = "state_label"}).style.font_color =
         extractor.spidertron and {g = 1} or {r = 1}
 
+    local div3 = frame.add({type = "flow", direction = "horizontal", name = "div3"})
+    div3.style.height = 24
+    div3.style.bottom_margin = 8
     if extractor.transfer then
-        local div3 = frame.add({type = "flow", direction = "horizontal", name = "div3"})
         div3.add({type = "label", caption = "Transfer:"})
         local transfer_config = div3.add({type = "flow", direction = "horizontal",
                                           name = "transfer_config"})
         fillTransferConfigGui(transfer_config, extractor.transfer)
     end
+
+    frame.add({type = "line"}).style.bottom_margin = 8
+    frame.add({type = "label", caption = "Use the logistic request to configure which"})
+    frame.add({type = "label", caption = "items are taken out of the spidertron when"}).style.top_margin = -4
+    frame.add({type = "label", caption = "it docks."}).style.top_margin = -4
+
 end
 Events.addListener(defines.events.on_gui_opened, SpidertronExtractor.on_open_gui)
 
@@ -316,18 +321,15 @@ function SpidertronExtractor.on_gui_update(extractor)
         state_label.style.font_color = extractor.spidertron and {g = 1} or {r = 1}
 
         if extractor.transfer then
-            if not frame["div3"] then
-                local div3 = frame.add({type = "flow", direction = "horizontal", name = "div3"})
-                div3.add({type = "label", caption = "Transfer:"})
-                div3.add({type = "flow", direction = "horizontal", name = "transfer_config"})
+            if not frame["div3"]["transfer_config"] then
+                frame["div3"].add({type = "label", caption = "Transfer:"})
+                frame["div3"].add({type = "flow", direction = "horizontal", name = "transfer_config"})
             end
             local transfer_config = frame["div3"]["transfer_config"]
             transfer_config.clear()
             fillTransferConfigGui(transfer_config, extractor.transfer)
-        else
-            if frame["div3"] then
-                frame["div3"].destroy()
-            end
+        elseif frame["div3"]["transfer_config"] then
+            frame["div3"].clear()
         end
 
         ::continue::
@@ -336,9 +338,10 @@ end
 
 function SpidertronExtractor.on_transfer_update(extractor)
     local new_config = createTransferConfig(extractor.entity)
-    for _,item in pairs(new_config) do
+    local needs_gui_update = false
+    for _, item in pairs(new_config) do
         local old
-        for _,old_item in pairs(extractor.transfer_config or {}) do
+        for _, old_item in pairs(extractor.transfer_config or {}) do
             if old_item.name == item.name then
                 old = old_item
                 break
@@ -347,7 +350,7 @@ function SpidertronExtractor.on_transfer_update(extractor)
         if old then
             if item.count > old.count then
                 local done = false
-                for _,current_item in pairs(extractor.transfer or {}) do
+                for _, current_item in pairs(extractor.transfer or {}) do
                     if current_item.name == item.name then
                         current_item.count = current_item.count + item.count - old.count
                         done = true
@@ -358,17 +361,41 @@ function SpidertronExtractor.on_transfer_update(extractor)
                     extractor.transfer[#extractor.transfer + 1] =
                         {name = item.name, count = item.count - old.count}
                 end
+                needs_gui_update = true
             end
         elseif extractor.transfer then
             extractor.transfer[#extractor.transfer + 1] = {name = item.name, count = item.count}
+            needs_gui_update = true
         end
     end
+    for _, item in pairs(extractor.transfer_config) do
+        local present = false
+        for _, new_item in pairs(new_config) do
+            if new_item.name == item.name then
+                present = true
+                break
+            end
+        end
+        if not present then
+            for i, current_item in ipairs(extractor.transfer or {}) do
+                if current_item.name == item.name then
+                    table.remove(extractor.transfer, i)
+                    break
+                end
+            end
+            needs_gui_update = true
+        end
+    end
+
     extractor.transfer_config = new_config
+    if needs_gui_update then
+        SpidertronExtractor.on_gui_update(extractor)
+    end
 end
 
 function createTransferConfig(entity)
     local transferConfig = {}
-    for i=1, 64 do
+    for i=1, NUMBER_CONFIG_SLOTS do
         local item = entity.get_request_slot(i)
         if item then
             transferConfig[#transferConfig + 1] = { name = item.name, count = item.count }
@@ -394,7 +421,8 @@ function fillTransferConfigGui(transfer_config, transfer)
     if #transfer == 0 then
         transfer_config.add({type = "label", caption = "Done"}).style.font_color = {g = 1}
     end
-    for _,item in pairs(transfer) do
+    for i,item in ipairs(transfer) do
+        if i > 8 then break end
         createItemIcon(transfer_config, item)
     end
 end

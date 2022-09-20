@@ -35,7 +35,7 @@ local extractor = {
     inventory_size = 0,
     enable_inventory_bar = false,
     logistic_mode = "buffer",
-    max_logistic_slots = 64,
+    max_logistic_slots = 20,
     render_not_in_network_icon = false,
 }
 
