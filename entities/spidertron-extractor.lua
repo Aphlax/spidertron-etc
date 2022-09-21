@@ -22,7 +22,7 @@ local extractor = {
     icon = "__spidertron-fef__/graphics/icon/spidertron-extractor.png",
     icon_size = 64,
     flags = {"placeable-player", "player-creation", "not-rotatable", "no-automated-item-insertion", "no-automated-item-removal"},
-    max_health = 250,
+    max_health = 500,
     alert_icon_shift = util.by_pixel(0, -12),
     open_sound = {filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43},
     close_sound = {filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43},
@@ -47,7 +47,7 @@ local output = {
     icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
     icon_size = 64,
     flags = {"placeable-player", "not-blueprintable", "not-rotatable", "not-deconstructable", "placeable-off-grid", "no-automated-item-insertion"},
-    max_health = 1000,
+    max_health = 100,
     se_allow_in_space = true,
     allow_copy_paste = false,
     collision_box = {{-0.6, -0.6}, {0.6, 0.6}},
@@ -71,7 +71,7 @@ local signal = {
     icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
     icon_size = 64,
     flags = {"placeable-player", "not-blueprintable", "not-rotatable", "not-deconstructable", "placeable-off-grid"},
-    max_health = 500,
+    max_health = 100,
     se_allow_in_space = true,
     allow_copy_paste = false,
     collision_box = {{-0.1, -0.1}, {0.1, 0.1}},
@@ -121,4 +121,51 @@ local transfer_signal = {
     order = "f[spidertron]-[3]",
 }
 
-data:extend({extractor, output, signal, docked_signal, transfer_signal})
+local item = {
+    type = "item",
+    name = "spidertron-extractor",
+    icon = "__spidertron-fef__/graphics/icon/spidertron-extractor.png",
+    icon_size = 64,
+    subgroup = "transport",
+    order = "b[personal-transport]-z[extractor]",
+    stack_size = 5,
+    place_result = "spidertron-extractor",
+}
+
+local gear_ingredient = mods["aai-industry"] and "electric-motor" or "iron-gear-wheel"
+local recipe = {
+    type = "recipe",
+    name = "spidertron-extractor",
+    icon = "__spidertron-fef__/graphics/icon/spidertron-extractor.png",
+    icon_size = 64,
+    ingredients = {{"steel-plate", 30}, {gear_ingredient, 20}, {"processing-unit", 25}},
+    result = "spidertron-extractor",
+    energy_required = 10,
+    enabled = false,
+}
+
+local technology = {
+    type = "technology",
+    name = "spidertron-extractor",
+    icon = "__spidertron-fef__/graphics/technology/spidertron-extractor.png",
+    icon_size = 256,
+    order = "d-e-f",
+    prerequisites = {
+        "spidertron",
+    },
+    unit = {
+        count = 500,
+        ingredients = {
+            {"automation-science-pack", 1},
+            {"logistic-science-pack", 1},
+            {"military-science-pack", 1},
+            {"chemical-science-pack", 1},
+            {"production-science-pack", 1},
+            {"utility-science-pack", 1}
+        },
+        time = 30
+    },
+    effects = {{type = "unlock-recipe", recipe = "spidertron-extractor"}},
+}
+
+data:extend({extractor, output, signal, docked_signal, transfer_signal, item, recipe, technology})

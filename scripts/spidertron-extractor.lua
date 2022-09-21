@@ -114,7 +114,7 @@ function SpidertronExtractor.update(tick)
             SpidertronExtractor.delete(extractor, unit_number)
             goto continue
         end
-        local target = translate(extractor.entity.position, 0, 0.4)
+        local target = translate(extractor.entity.position, 0, 0.1)
 
         -- connect with spidertron
         if not extractor.spidertron then
