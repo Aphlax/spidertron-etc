@@ -2,7 +2,7 @@ local extractorAnimation = animationFactory({
     filename = "__spidertron-fef__/graphics/entity/hr-spidertron-extractor.png",
     width = 192,
     height = 192,
-    shift = { 0, 0 },
+    shift = { 0, -0.3 },
     frames = 1,
     frames_per_line = 1,
     offset = 0,
@@ -24,12 +24,14 @@ local extractor = {
     flags = {"placeable-player", "player-creation", "not-rotatable", "no-automated-item-insertion", "no-automated-item-removal"},
     max_health = 250,
     alert_icon_shift = util.by_pixel(0, -12),
-    open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43 },
-    close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43 },
+    open_sound = {filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43},
+    close_sound = {filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43},
+    vehicle_impact_sound =  {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
     se_allow_in_space = true,
     picture = extractorAnimation(),
     collision_box = {{-0.8, -0.8},{0.8, 0.8}},
     selection_box = {{-1, -1},{1, 1}},
+    map_color = {r = 0.816, g = 0.792, b = 0.533},
 
     -- container
     inventory_size = 0,
@@ -50,7 +52,6 @@ local output = {
     allow_copy_paste = false,
     collision_box = {{-0.6, -0.6}, {0.6, 0.6}},
     selection_box = {{-0.6, -0.6}, {0.6, 0.6}},
-    vehicle_impact_sound =  {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
     picture = blank_image,
     fast_replaceable_group = "",
 

@@ -9,6 +9,8 @@ SpidertronExtractor.transfer_complete_signal = "spidertron-transfer-complete"
 
 local createTransferConfig, createItemIcon, fillTransferConfigGui
 local MIN_DISTANCE = 8
+local CATCH_RADIUS = 3
+local DOCKED_RADIUS = 0.3
 local NUMBER_CONFIG_SLOTS = 20
 
 function SpidertronExtractor.on_create(event)
@@ -72,7 +74,9 @@ function SpidertronExtractor.on_create(event)
         output = output,
         signal = signal,
         spidertron = nil,
+        -- The current state of the transfer.
         transfer = nil,
+        -- The starting state of the transfer (for when it changes mid-transfer).
         transfer_config = nil,
     }
 
@@ -110,14 +114,14 @@ function SpidertronExtractor.update(tick)
             SpidertronExtractor.delete(extractor, unit_number)
             goto continue
         end
-        local target = translate(extractor.entity.position, 0, 1)
+        local target = translate(extractor.entity.position, 0, 0.4)
 
         -- connect with spidertron
         if not extractor.spidertron then
             -- check if there is a spidertron near.
             local spiders = extractor.entity.surface.find_entities_filtered({
-                position = extractor.entity.position,
-                radius = MIN_DISTANCE / 2,
+                position = target,
+                radius = CATCH_RADIUS,
                 type = "spider-vehicle",
             })
             for _, spider in pairs(spiders) do
@@ -128,29 +132,25 @@ function SpidertronExtractor.update(tick)
                 end
                 -- if it has one that is far away, ignore
                 if spider.autopilot_destination and
-                        v_length(v_sub(spider.autopilot_destination, target)) > 1 then
+                        v_length(v_sub(spider.autopilot_destination, target)) > CATCH_RADIUS then
                     goto continue2
                 end
                 -- if the spidertron is at the target, set the spidertron as connected
-                if v_length(v_sub(spider.position, target)) < 1 and spider.speed == 0 then
+                if v_length(v_sub(spider.position, target)) < DOCKED_RADIUS and spider.speed == 0 then
+                    spider.teleport(target)
                     extractor.spidertron = spider
-                    -- The current state of the transfer.
                     extractor.transfer = createTransferConfig(extractor.entity)
-                    -- The starting state of the transfer (for when it changes mid-transfer).
                     extractor.transfer_config = createTransferConfig(extractor.entity)
                     SpidertronExtractor.on_gui_update(extractor)
                     break
                 end
-                -- otherwise, set a waypoint to the center of this entity
-                if v_length(v_sub(spider.position, target)) > 2 then
-                    spider.autopilot_destination = target
-                    goto continue2
-                end
-                -- if close enough, just teleport to the target
+
                 if spider.speed == 0 then
-                    spider.teleport(target)
-                    spider.torso_orientation = 0.5
-                    spider.stop_spider()
+                    local dir = v_sub(target, spider.position)
+                    local length = v_length(dir)
+                    local force = 2.05 + math.min((length - DOCKED_RADIUS) / 1.9, 0.7)
+                    spider.autopilot_destination =
+                            v_add(spider.position, v_scale(dir, force / length))
                 end
 
                 ::continue2::
@@ -158,7 +158,7 @@ function SpidertronExtractor.update(tick)
         else
             -- if the spidertron is not at the center anymore, disconnect
             if not extractor.spidertron.valid or
-                    v_length(v_sub(extractor.spidertron.position, target)) > 1 then
+                    v_length(v_sub(extractor.spidertron.position, target)) > DOCKED_RADIUS then
                 extractor.spidertron = nil
                 extractor.transfer = nil
                 extractor.transfer_config = nil
