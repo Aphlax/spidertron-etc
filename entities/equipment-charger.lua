@@ -33,13 +33,14 @@ local charger = {
     resistances ={{ type = "impact", percent = 50 }},
     open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
     close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
+    vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
     picture =  chargerAnimation(),
     fast_replaceable_group = "",
-    vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
+    minable = {mining_time = 0.2, result = "equipment-charger"},
 
     -- accumulator
     energy_source = {
-        buffer_capacity = "500MJ",
+        buffer_capacity = "250MJ",
         input_flow_limit = "80MW",
         output_flow_limit = "0kW",
         type = "electric",
@@ -68,6 +69,7 @@ local charger_pad = {
     close_sound = {filename = "__base__/sound/machine-close.ogg", volume = 0.75},
     picture =  chargerPadAnimation(),
     fast_replaceable_group = "",
+    minable = {mining_time = 0.2, result = "equipment-charger-pad"},
 
     -- accumulator
     energy_source = {
@@ -81,4 +83,68 @@ local charger_pad = {
     discharge_cooldown = 30,
 }
 
-data:extend({charger, charger_pad})
+local item = {
+    type = "item",
+    name = "equipment-charger",
+    icon = "__spidertron-fef__/graphics/icon/equipment-charger.png",
+    icon_size = 64,
+    subgroup = "production-machine",
+    order = "q-c",
+    stack_size = 50,
+    place_result = "equipment-charger",
+}
+
+local pad_item = {
+    type = "item",
+    name = "equipment-charger-pad",
+    icon = "__spidertron-fef__/graphics/icon/equipment-charger-pad.png",
+    icon_size = 64,
+    subgroup = "production-machine",
+    order = "q-d",
+    stack_size = 50,
+    place_result = "equipment-charger-pad",
+}
+
+local recipe = {
+    type = "recipe",
+    name = "equipment-charger",
+    category = "crafting",
+    ingredients = {{"steel-plate", 10}, {"accumulator", 40}, {"advanced-circuit", 8}},
+    energy_required = 8,
+    result = "equipment-charger",
+    enabled = false,
+}
+
+local pad_recipe = {
+    type = "recipe",
+    name = "equipment-charger-pad",
+    category = "crafting",
+    ingredients = {{"steel-plate", 4}, {"accumulator", 8}, {"advanced-circuit", 20}},
+    energy_required = 4,
+    result = "equipment-charger-pad",
+    enabled = false,
+}
+
+local technology = {
+    type = "technology",
+    name = "equipment-charger",
+    icon = "__spidertron-fef__/graphics/technology/equipment-charger.png",
+    icon_size = 256,
+    order = "b",
+    prerequisites = {"battery-equipment", "equipment-gantry", "electric-energy-accumulators"},
+    unit = {
+        count = 100,
+        ingredients = {
+            {"automation-science-pack", 1},
+            {"logistic-science-pack", 1},
+            {"chemical-science-pack", 1},
+        },
+        time = 30,
+    },
+    effects = {
+        {type = "unlock-recipe", recipe = "equipment-charger"},
+        {type = "unlock-recipe", recipe = "equipment-charger-pad"},
+    },
+}
+
+data:extend({charger, charger_pad, item, pad_item, recipe, pad_recipe, technology})

@@ -32,6 +32,7 @@ local extractor = {
     collision_box = {{-0.8, -0.8},{0.8, 0.8}},
     selection_box = {{-1, -1},{1, 1}},
     map_color = {r = 0.816, g = 0.792, b = 0.533},
+    minable = {mining_time = 0.2, result = "spidertron-extractor"},
 
     -- container
     inventory_size = 0,
@@ -136,8 +137,6 @@ local gear_ingredient = mods["aai-industry"] and "electric-motor" or "iron-gear-
 local recipe = {
     type = "recipe",
     name = "spidertron-extractor",
-    icon = "__spidertron-fef__/graphics/icon/spidertron-extractor.png",
-    icon_size = 64,
     ingredients = {{"steel-plate", 30}, {gear_ingredient, 20}, {"processing-unit", 25}},
     result = "spidertron-extractor",
     energy_required = 10,
@@ -150,9 +149,7 @@ local technology = {
     icon = "__spidertron-fef__/graphics/technology/spidertron-extractor.png",
     icon_size = 256,
     order = "d-e-f",
-    prerequisites = {
-        "spidertron",
-    },
+    prerequisites = {"spidertron"},
     unit = {
         count = 500,
         ingredients = {
@@ -161,11 +158,14 @@ local technology = {
             {"military-science-pack", 1},
             {"chemical-science-pack", 1},
             {"production-science-pack", 1},
-            {"utility-science-pack", 1}
+            {"utility-science-pack", 1},
         },
-        time = 30
+        time = 30,
     },
-    effects = {{type = "unlock-recipe", recipe = "spidertron-extractor"}},
+    effects = {
+        {type = "unlock-recipe", recipe = "spidertron-extractor"},
+        {type = "unlock-recipe", recipe = "spidertron-sender"},
+    },
 }
 
 data:extend({extractor, output, signal, docked_signal, transfer_signal, item, recipe, technology})

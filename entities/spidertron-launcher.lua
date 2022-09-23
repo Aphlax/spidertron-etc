@@ -22,9 +22,9 @@ local launcher = {
     collision_box = {{-0.8, -1.3}, {0.8, 1.3}},
     selection_box = {{-1, -1.5}, {1, 1.5}},
     resistances ={{ type = "impact", percent = 50 }},
-    open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
-    close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
-    vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+    open_sound = {filename = "__base__/sound/machine-open.ogg", volume = 0.85},
+    close_sound = {filename = "__base__/sound/machine-close.ogg", volume = 0.75},
+    vehicle_impact_sound =  {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
     animation = {
         north = launcherAnimation(),
         east = launcherAnimation(),
@@ -32,7 +32,7 @@ local launcher = {
         west = launcherAnimation(),
     },
     fast_replaceable_group = "",
-    vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 1.0 },
+    minable = {mining_time = 1, result = "spidertron-launcher"},
 
     -- assembly-machine
     crafting_categories = {"spidertron-fef"},
@@ -104,7 +104,7 @@ local recipe_cat = {
     name = "spidertron-fef",
 }
 
-local recipe = {
+local launch_recipe = {
     type = "recipe",
     name = "spidertron-launch",
     icon = "__base__/graphics/icons/spidertron.png",
@@ -117,4 +117,50 @@ local recipe = {
     results= {},
 }
 
-data:extend({ recipe_cat, recipe, launcher, container })
+local item = {
+    type = "item",
+    name = "spidertron-launcher",
+    icon = "__spidertron-fef__/graphics/icon/spidertron-launcher.png",
+    icon_size = 64,
+    subgroup = "transport",
+    order = "b[personal-transport]-y",
+    stack_size = 1,
+    place_result = "spidertron-launcher",
+}
+
+local gear_ingredient = mods["aai-industry"] and {"electric-motor", 80} or {"iron-gear-wheel", 100}
+local recipe = {
+    type = "recipe",
+    name = "spidertron-launcher",
+    ingredients = {{"concrete", 100}, {"steel-plate", 100}, gear_ingredient, {"processing-unit", 10}},
+    result = "spidertron-launcher",
+    energy_required = 40,
+    enabled = false,
+}
+
+local technology = {
+    type = "technology",
+    name = "spidertron-launcher",
+    icon = "__spidertron-fef__/graphics/technology/spidertron-launcher.png",
+    icon_size = 256,
+    order = "d-e-f",
+    prerequisites = {"spidertron"},
+    unit = {
+        count = 500,
+        ingredients = {
+            {"automation-science-pack", 1},
+            {"logistic-science-pack", 1},
+            {"military-science-pack", 1},
+            {"chemical-science-pack", 1},
+            {"production-science-pack", 1},
+            {"utility-science-pack", 1},
+        },
+        time = 30,
+    },
+    effects = {
+        {type = "unlock-recipe", recipe = "spidertron-launcher"},
+        {type = "unlock-recipe", recipe = "spidertron-processor"}
+    },
+}
+
+data:extend({ recipe_cat, launch_recipe, launcher, container, item, recipe, technology })

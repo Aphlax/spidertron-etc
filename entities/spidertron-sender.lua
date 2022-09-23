@@ -21,6 +21,7 @@ local sender = {
     picture = senderAnimation(),
     collision_box = {{-0.45, -0.45},{0.45, 0.45}},
     selection_box = {{-0.5, -0.5},{0.5, 0.5}},
+    minable = {mining_time = 0.2, result = "spidertron-sender"},
 
     -- Container.
     inventory_size = 1,
@@ -41,4 +42,24 @@ local launch_signal = {
     order = "f[spidertron]-[1]",
 }
 
-data:extend({sender, launch_signal})
+local item = {
+    type = "item",
+    name = "spidertron-sender",
+    icon = "__spidertron-fef__/graphics/icon/spidertron-sender.png",
+    icon_size = 64,
+    subgroup = "transport",
+    order = "b[personal-transport]-x",
+    stack_size = 50,
+    place_result = "spidertron-sender",
+}
+
+local recipe = {
+    type = "recipe",
+    name = "spidertron-sender",
+    ingredients = {{"steel-plate", 5}, {"processing-unit", 10}},
+    result = "spidertron-sender",
+    energy_required = 4,
+    enabled = false,
+}
+
+data:extend({sender, launch_signal, item, recipe})

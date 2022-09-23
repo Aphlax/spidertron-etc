@@ -21,13 +21,13 @@ local processor = {
     se_allow_in_space = true,
     collision_box = {{-0.8, -1.3}, {0.8, 1.3}},
     selection_box = {{-1, -1.5}, {1, 1.5}},
-    resistances ={{ type = "impact", percent = 50 }},
-    open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
-    close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
-    vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
-    picture =  processorAnimation({ offset = 0 }),
+    resistances ={{type = "impact", percent = 50}},
+    open_sound = {filename = "__base__/sound/machine-open.ogg", volume = 0.85},
+    close_sound = {filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
+    vehicle_impact_sound =  {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
+    picture =  processorAnimation(),
     fast_replaceable_group = "",
-    vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 1.0 },
+    minable = {mining_time = 0.2, result = "spidertron-processor"},
 
     -- container
     inventory_size = 0,
@@ -35,4 +35,24 @@ local processor = {
     render_not_in_network_icon = false,
 }
 
-data:extend({ processor })
+local item = {
+    type = "item",
+    name = "spidertron-processor",
+    icon = "__spidertron-fef__/graphics/icon/spidertron-processor.png",
+    icon_size = 64,
+    subgroup = "production-machine",
+    order = "q-e",
+    stack_size = 50,
+    place_result = "spidertron-processor",
+}
+
+local recipe = {
+    type = "recipe",
+    name = "spidertron-processor",
+    ingredients = {{"steel-plate", 40}, {"processing-unit", 20}},
+    result = "spidertron-processor",
+    energy_required = 4,
+    enabled = false,
+}
+
+data:extend({processor, item, recipe})

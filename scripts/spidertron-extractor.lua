@@ -135,8 +135,9 @@ function SpidertronExtractor.update(tick)
                         v_length(v_sub(spider.autopilot_destination, target)) > CATCH_RADIUS then
                     goto continue2
                 end
+                local distance = v_length(v_sub(spider.position, target))
                 -- if the spidertron is at the target, set the spidertron as connected
-                if v_length(v_sub(spider.position, target)) < DOCKED_RADIUS and spider.speed == 0 then
+                if distance < DOCKED_RADIUS and spider.speed == 0 then
                     spider.teleport(target)
                     extractor.spidertron = spider
                     extractor.transfer = createTransferConfig(extractor.entity)
@@ -147,10 +148,12 @@ function SpidertronExtractor.update(tick)
 
                 if spider.speed == 0 then
                     local dir = v_sub(target, spider.position)
-                    local length = v_length(dir)
-                    local force = 2.05 + math.min((length - DOCKED_RADIUS) / 1.9, 0.7)
+                    local length = 2.05 + math.min((distance - DOCKED_RADIUS) / 1.9, 0.7)
                     spider.autopilot_destination =
-                            v_add(spider.position, v_scale(dir, force / length))
+                            v_add(spider.position, v_scale(dir, length / distance))
+                elseif spider.speed > 0.15 and distance < DOCKED_RADIUS / 1.2 then
+                    spider.autopilot_destination = null
+                    spider.stop_spider()
                 end
 
                 ::continue2::

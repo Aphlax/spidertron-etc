@@ -64,6 +64,7 @@ function GuiUtils.updateSlot(slot, item)
     end
 end
 
+-- TODO add sound effect
 function GuiUtils.clickSlot(event, item)
     local cursor = game.get_player(event.player_index).cursor_stack
     if cursor and cursor.valid_for_read and cursor.count > 0 then
