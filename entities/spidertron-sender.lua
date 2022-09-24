@@ -1,8 +1,8 @@
 local senderAnimation = animationFactory({
-    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-sender.png",
+    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-sender-shadow.png",
     width = 128,
     height = 128,
-    shift = { 0, -0.5 },
+    shift = { 0.5, -0.2 },
     frames = 1,
     frames_per_line = 1,
     offset = 0,
