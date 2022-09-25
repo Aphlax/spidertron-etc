@@ -1,7 +1,7 @@
 local extractorAnimation = animationFactory({
-    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-extractor.png",
-    width = 192,
-    height = 192,
+    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-extractor-shadow.png",
+    width = 384,
+    height = 256,
     shift = { 0, -0.3 },
     frames = 1,
     frames_per_line = 1,
