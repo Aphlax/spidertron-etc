@@ -19,7 +19,7 @@ function SpidertronLauncher.on_create(event)
     local container = entity.surface.create_entity({
         force = entity.force,
         name = SpidertronLauncher.container_name,
-        position = v_add(entity.position, v_scale(direction_vector(entity.direction), 0.9)),
+        position = entity.position,
         direction = entity.direction,
     })
     container.destructible = false
