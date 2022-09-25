@@ -5,8 +5,8 @@ local container = {
     icon_size = 64,
     flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-removal"},
     max_health = 250,
-    open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43 },
-    close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43 },
+    open_sound = {filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43},
+    close_sound = {filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43},
     se_allow_in_space = true,
     allow_copy_paste = false,
     picture = {
@@ -28,14 +28,15 @@ local container = {
 local input_vertical = table.deepcopy(container)
 input_vertical.name = "spidertron-fef-input-vertical"
 local output_vertical = table.deepcopy(container)
+output_vertical.flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-insertion"}
 output_vertical.name = "spidertron-fef-output-vertical"
 
 container.collision_box = {{-0.8, -0.3},{0.8, 0.3}}
 container.selection_box = {{-0.8, -0.3},{0.8, 0.3}}
-container.flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-insertion"}
 local input_horizontal = table.deepcopy(container)
 input_horizontal.name = "spidertron-fef-input-horizontal"
 local output_horizontal = table.deepcopy(container)
 output_horizontal.name = "spidertron-fef-output-horizontal"
+output_horizontal.flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-insertion"}
 
-data:extend({ input_vertical, output_vertical, input_horizontal, output_horizontal })
+data:extend({input_vertical, output_vertical, input_horizontal, output_horizontal})
