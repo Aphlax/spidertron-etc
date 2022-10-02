@@ -2,6 +2,8 @@ local SpidertronLauncher = {}
 SpidertronLauncher.name = "spidertron-launcher"
 SpidertronLauncher.container_name = "spidertron-launcher-container"
 
+local animateLauncher
+
 function SpidertronLauncher.on_create(event)
     local entity
     if event.entity and event.entity.valid then
@@ -28,7 +30,6 @@ function SpidertronLauncher.on_create(event)
     global.spidertron_launchers = global.spidertron_launchers or {}
     global.spidertron_launchers[entity.unit_number] = {
         entity = entity,
-        unit_number = entity.unit_number,
         container = container,
     }
 end
@@ -87,8 +88,15 @@ function SpidertronLauncher.update(tick)
 end
 Events.repeatingTask(60, SpidertronLauncher.update)
 
-
-
-
-
-
+function animateLauncher(launcher, tick)
+    local animation_speed, time_to_live = 0.5, 1.5 * 60
+    return rendering.draw_animation({
+        animation = "spidertron-launcher-animation",
+        surface = launcher.entity.surface,
+        target = launcher.entity,
+        render_layer = "object",
+        time_to_live = time_to_live - 1 / animation_speed,
+        animation_speed = animation_speed,
+        animation_offset = -(tick % time_to_live) * animation_speed,
+    })
+end
