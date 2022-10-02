@@ -73,6 +73,8 @@ function SpidertronLauncher.update(tick)
         if input.is_empty() or #output > 0 then goto continue end
         local spidertron_item = input[1]
         if not spidertron_item.valid_for_read or spidertron_item.name ~= "spidertron" then goto continue end
+
+        animateLauncher(launcher, tick)
         
         launcher.entity.surface.create_entity({
             force = launcher.entity.force,
@@ -89,7 +91,7 @@ end
 Events.repeatingTask(60, SpidertronLauncher.update)
 
 function animateLauncher(launcher, tick)
-    local animation_speed, time_to_live = 0.5, 1.5 * 60
+    local animation_speed, time_to_live = 1, 7 * 60
     return rendering.draw_animation({
         animation = "spidertron-launcher-animation",
         surface = launcher.entity.surface,

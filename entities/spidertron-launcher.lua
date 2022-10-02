@@ -1,8 +1,10 @@
+require("__spidertron-fef__/scripts/lib/utils.lua")
+
 local launcherAnimation = animationFactory({
     filename = "__spidertron-fef__/graphics/entity/hr-spidertron-launcher-shadow.png",
     width = 448,
-    height = 384,
-    shift = { 0, 0.2 },
+    height = 320,
+    shift = { 0.75, 0 },
     frames = 1,
     frames_per_line = 1,
     offset = 0,
@@ -112,10 +114,30 @@ local launch_recipe = {
     category = "spidertron-fef",
     subgroup = "equipment",
     enabled = false,
-    energy_required = 1,
+    energy_required = 7,
     ingredients = {},
     results= {},
 }
+
+local animation = animationFactory({
+    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-launcher.png",
+    width = 448,
+    height = 320,
+    shift = { 0.75, 0 },
+    extras = {
+        type = "animation",
+        name = "spidertron-launcher-animation",
+        frame_count = 151,
+        line_length = 12,
+        animation_speed = "0.5",
+        frame_sequence = flatten({
+            range(90),
+            replicate({ 91 }, 30),
+            replicate({ 92 }, 30),
+            map(range(60), function(n) return n + 91 end), -- Total: 210
+        }),
+    },
+})()
 
 local item = {
     type = "item",
@@ -163,4 +185,4 @@ local technology = {
     },
 }
 
-data:extend({ recipe_cat, launch_recipe, launcher, container, item, recipe, technology })
+data:extend({ recipe_cat, launch_recipe, launcher, container, animation, item, recipe, technology })
