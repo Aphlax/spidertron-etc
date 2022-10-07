@@ -120,7 +120,7 @@ local launch_recipe = {
 }
 
 local animation = animationFactory({
-    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-launcher.png",
+    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-launcher-shadow.png",
     width = 448,
     height = 320,
     shift = { 0.75, 0 },
