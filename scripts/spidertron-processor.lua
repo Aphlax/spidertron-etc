@@ -94,6 +94,7 @@ function SpidertronProcessor.update(tick)
             direction = processor.entity.direction,
             name = spidertron_item.name,
             item = spidertron_item,
+            raise_built = false,
             create_build_effect_smoke = false,
         })
         if not spidertron then goto continue end

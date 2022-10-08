@@ -138,6 +138,25 @@ local animation = animationFactory({
 animation.type = "animation"
 animation.name = "spidertron-launcher-animation"
 
+local animation_tint = animationFactory({
+    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-launcher-tint.png",
+    width = 448,
+    height = 320,
+    shift = {0.75, 0},
+    extras = {
+        frame_count = 151,
+        line_length = 12,
+        frame_sequence = flatten({
+            range(90),
+            replicate({91}, 30),
+            replicate({92}, 30),
+            map(range(60), function(n) return n + 91 end), -- Total: 210
+        }),
+    },
+})()
+animation_tint.type = "animation"
+animation_tint.name = "spidertron-launcher-animation-tint"
+
 local sound = {
     type = "sound",
     name = "spidertron-launcher-sound",
@@ -190,5 +209,9 @@ local technology = {
     },
 }
 
-data:extend(
-        {recipe_cat, launch_recipe, launcher, container, animation, sound, item, recipe, technology})
+data:extend({
+    launcher, container,
+    animation, animation_tint, sound,
+    recipe_cat, launch_recipe,
+    item, recipe, technology
+})

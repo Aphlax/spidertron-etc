@@ -88,7 +88,7 @@ function SpidertronLauncher.update(tick)
         if launcher.task_start == nil then
             local input = launcher.container.get_inventory(defines.inventory.chest)
             local output = launcher.entity.surface.find_entities_filtered(
-                    {position = launcher.entity.position, type = "spider-vehicle"})
+                    {position = launcher.entity.position, radius = 2, type = "spider-vehicle"})
             if input.is_empty() or #output > 0 then goto continue end
             local spidertron_item = input[1]
             if not spidertron_item.valid_for_read or spidertron_item.name ~= "spidertron" then goto continue end
@@ -120,6 +120,29 @@ function launchSpider(launcher, tick)
             animation_speed = animation_speed,
             animation_offset = -(tick % time_to_live) * animation_speed,
         })
+
+        local spidertron = launcher.entity.surface.create_entity({
+            force = launcher.entity.force,
+            position = launcher.entity.position,
+            direction = launcher.entity.direction,
+            name = launcher.internal_inventory[1].name,
+            item = launcher.internal_inventory[1],
+            raise_built = false,
+            create_build_effect_smoke = false,
+        })
+        local color = spidertron.color
+        spidertron.mine({force = true, raise_destroyed = false, ignore_mineable = true})
+        rendering.draw_animation({
+            animation = "spidertron-launcher-animation-tint",
+            surface = launcher.entity.surface,
+            target = launcher.entity,
+            render_layer = "130", -- object + 1
+            time_to_live = time_to_live - 1 / animation_speed,
+            animation_speed = animation_speed,
+            animation_offset = -(tick % time_to_live) * animation_speed,
+            tint = color,
+        })
+
         game.play_sound({
             path = "spidertron-launcher-sound",
             position = launcher.entity.position,
