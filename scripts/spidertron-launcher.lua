@@ -66,6 +66,18 @@ Events.addListener(defines.events.on_robot_mined_entity, SpidertronLauncher.on_d
 Events.addListener(defines.events.on_player_mined_entity, SpidertronLauncher.on_delete)
 Events.addListener(defines.events.script_raised_destroy, SpidertronLauncher.on_delete)
 
+function SpidertronLauncher.on_open_gui(event)
+    if event.gui_type ~= defines.gui_type.entity or not event.entity or
+            event.entity.name ~= SpidertronLauncher.name then return end
+    if not global.spidertron_launchers or
+            not global.spidertron_launchers[event.entity.unit_number] then return end
+    local launcher = global.spidertron_launchers[event.entity.unit_number]
+    if launcher.container.valid then
+        game.get_player(event.player_index).opened = launcher.container
+    end
+end
+Events.addListener(defines.events.on_gui_opened, SpidertronLauncher.on_open_gui)
+
 function SpidertronLauncher.update(tick)
     for unit_number, launcher in pairs(global.spidertron_launchers or {}) do
         if not launcher.entity.valid or not launcher.container.valid then
@@ -113,6 +125,7 @@ function launchSpider(launcher, tick)
             position = launcher.entity.position,
             volume_modifier = 0.8,
         })
+        launcher.entity.active = true
     elseif task_time == 4 * 60 then
         if launcher.internal_inventory.is_empty() then return end
         launcher.entity.surface.create_entity({
@@ -125,5 +138,6 @@ function launchSpider(launcher, tick)
         launcher.internal_inventory.clear()
     elseif task_time >= 7 * 60 then
         launcher.task_start = nil
+        launcher.entity.active = false
     end
 end
