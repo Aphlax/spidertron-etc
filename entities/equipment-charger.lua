@@ -8,7 +8,7 @@ local chargerAnimation = animationFactory({
     offset = 0,
 })
 local chargerPadAnimation = animationFactory({
-    filename = "__spidertron-fef__/graphics/entity/hr-equipment-charger-pad.png",
+    filename = "__spidertron-fef__/graphics/entity/hr-equipment-charger-pad-shadow.png",
     width = 320,
     height = 320,
     shift = { 0, 2 },
@@ -59,7 +59,7 @@ local charger_pad = {
     max_health = 250,
     corpse = "big-remnants",
     dying_explosion = "medium-explosion",
-    alert_icon_shift = util.by_pixel(0, -12),
+    alert_icon_shift = util.by_pixel(0, -6 + 2 * 32),
     se_allow_in_space = true,
     collision_box = {{ -1.95, 0 }, { 1.95, 1.95 * 2 }},
     collision_mask = {"floor-layer", "object-layer", "water-tile"},
