@@ -54,6 +54,7 @@ function SpidertronExtractor.on_create(event)
         force = entity.force,
         name = SpidertronExtractor.output_name,
         position = entity.position,
+        raise_built = false,
         create_build_effect_smoke = false,
     })
     output.destructible = false
@@ -63,6 +64,7 @@ function SpidertronExtractor.on_create(event)
         force = entity.force,
         name = SpidertronExtractor.signal_name,
         position = translate(entity.position, 0.5, -0.5),
+        raise_built = false,
         create_build_effect_smoke = false,
     })
     signal.destructible = false

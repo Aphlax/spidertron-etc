@@ -23,6 +23,8 @@ function SpidertronLauncher.on_create(event)
         name = SpidertronLauncher.container_name,
         position = entity.position,
         direction = entity.direction,
+        raise_built = false,
+        create_build_effect_smoke = false,
     })
     container.destructible = false
     
