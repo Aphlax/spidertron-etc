@@ -2,7 +2,7 @@ local SpidertronLauncher = {}
 SpidertronLauncher.name = "spidertron-launcher"
 SpidertronLauncher.container_name = "spidertron-launcher-container"
 
-local animateLauncher
+local launchSpider
 
 function SpidertronLauncher.on_create(event)
     local entity
@@ -31,6 +31,8 @@ function SpidertronLauncher.on_create(event)
     global.spidertron_launchers[entity.unit_number] = {
         entity = entity,
         container = container,
+        internal_inventory = game.create_inventory(1),
+        task_start = nil,
     }
 end
 Events.addListener(defines.events.on_built_entity, SpidertronLauncher.on_create)
@@ -39,6 +41,9 @@ Events.addListener(defines.events.script_raised_built, SpidertronLauncher.on_cre
 Events.addListener(defines.events.script_raised_revive, SpidertronLauncher.on_create)
 
 function SpidertronLauncher.delete(launcher, unit_number, player_index)
+    if not launcher.internal_inventory.is_empty() and launcher.container.valid then
+        GameUtils.give_items_to_player(launcher.internal_inventory[1], player_index, launcher.container)
+    end
     if launcher.container.valid then
         local chest = launcher.container.get_inventory(defines.inventory.chest)
         for i = 1, #chest do
@@ -67,38 +72,58 @@ function SpidertronLauncher.update(tick)
             SpidertronLauncher.delete(launcher, unit_number)
             goto continue
         end
-        
-        local input = launcher.container.get_inventory(defines.inventory.chest)
-        local output = launcher.entity.surface.find_entities_filtered({position = launcher.entity.position, type = "spider-vehicle"})
-        if input.is_empty() or #output > 0 then goto continue end
-        local spidertron_item = input[1]
-        if not spidertron_item.valid_for_read or spidertron_item.name ~= "spidertron" then goto continue end
 
-        animateLauncher(launcher, tick)
-        
-        launcher.entity.surface.create_entity({
-            force = launcher.entity.force,
-            position = launcher.entity.position,
-            direction = launcher.entity.direction,
-            name = spidertron_item.name,
-            item = spidertron_item,
-        })
-        input.remove({ name = spidertron_item.name, count = 1})
-        
-        ::continue::
-    end
+        if launcher.task_start == nil then
+            local input = launcher.container.get_inventory(defines.inventory.chest)
+            local output = launcher.entity.surface.find_entities_filtered(
+                    {position = launcher.entity.position, type = "spider-vehicle"})
+            if input.is_empty() or #output > 0 then goto continue end
+            local spidertron_item = input[1]
+            if not spidertron_item.valid_for_read or spidertron_item.name ~= "spidertron" then goto continue end
+
+            launcher.task_start = tick
+            launcher.internal_inventory.insert(spidertron_item)
+            input.remove({name = spidertron_item.name, count = 1})
+
+            launchSpider(launcher, tick)
+        else
+            launchSpider(launcher, tick)
+        end
+
+            ::continue::
+        end
 end
 Events.repeatingTask(60, 4, SpidertronLauncher.update)
 
-function animateLauncher(launcher, tick)
-    local animation_speed, time_to_live = 1, 7 * 60
-    return rendering.draw_animation({
-        animation = "spidertron-launcher-animation",
-        surface = launcher.entity.surface,
-        target = launcher.entity,
-        render_layer = "object",
-        time_to_live = time_to_live - 1 / animation_speed,
-        animation_speed = animation_speed,
-        animation_offset = -(tick % time_to_live) * animation_speed,
-    })
+function launchSpider(launcher, tick)
+    local task_time = tick - launcher.task_start
+    if task_time == 0 * 60 then
+        local animation_speed, time_to_live = 0.5, 7 * 60
+        rendering.draw_animation({
+            animation = "spidertron-launcher-animation",
+            surface = launcher.entity.surface,
+            target = launcher.entity,
+            render_layer = "object",
+            time_to_live = time_to_live - 1 / animation_speed,
+            animation_speed = animation_speed,
+            animation_offset = -(tick % time_to_live) * animation_speed,
+        })
+        game.play_sound({
+            path = "spidertron-launcher-sound",
+            position = launcher.entity.position,
+            volume_modifier = 0.8,
+        })
+    elseif task_time == 4 * 60 then
+        if launcher.internal_inventory.is_empty() then return end
+        launcher.entity.surface.create_entity({
+            force = launcher.entity.force,
+            position = translate(launcher.entity.position, 0, -0.2),
+            direction = launcher.entity.direction,
+            name = launcher.internal_inventory[1].name,
+            item = launcher.internal_inventory[1],
+        })
+        launcher.internal_inventory.clear()
+    elseif task_time >= 7 * 60 then
+        launcher.task_start = nil
+    end
 end

@@ -64,9 +64,9 @@ function GuiUtils.updateSlot(slot, item)
     end
 end
 
--- TODO add sound effect
 function GuiUtils.clickSlot(event, item)
-    local cursor = game.get_player(event.player_index).cursor_stack
+    local player = game.get_player(event.player_index)
+    local cursor = player.cursor_stack
     if cursor and cursor.valid_for_read and cursor.count > 0 then
         if item.valid_for_read and item.count > 0 and cursor.name == item.name then
             if item.count == item.prototype.stack_size then return end
@@ -74,22 +74,32 @@ function GuiUtils.clickSlot(event, item)
                 local count = math.min(item.prototype.stack_size - item.count, cursor.count)
                 item.count = item.count + count
                 cursor.count = cursor.count - count
+                player.play_sound({path = "utility/inventory_click"})
             elseif event.button == defines.mouse_button_type.right then
                 item.count = item.count + 1
                 cursor.count = cursor.count - 1
+                player.play_sound({path = "utility/inventory_click"})
             end
         elseif event.button == defines.mouse_button_type.left then
             cursor.swap_stack(item)
+            player.play_sound({path = "utility/inventory_click"})
+        elseif event.button == defines.mouse_button_type.right and
+                (not item.valid_for_read or item.count == 0) then
+            item.set_stack({name = cursor.name, count = 1})
+            cursor.count = cursor.count - 1
+            player.play_sound({path = "utility/inventory_click"})
         end
     else
         if not item.valid_for_read or item.count == 0 then return end
         if event.button == defines.mouse_button_type.left then
             cursor.set_stack(item)
             item.clear()
+            player.play_sound({path = "utility/inventory_click"})
         elseif event.button == defines.mouse_button_type.right then
             cursor.set_stack(item)
             cursor.count = (item.count + 1) / 2
             item.count = item.count - cursor.count
+            player.play_sound({path = "utility/inventory_click"})
         end
     end
     GuiUtils.updateSlot(event.element, item)
