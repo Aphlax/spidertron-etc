@@ -119,4 +119,4 @@ function SpidertronProcessor.update(tick)
         ::continue::
     end
 end
-Events.repeatingTask(60, SpidertronProcessor.update)
+Events.repeatingTask(60, 5, SpidertronProcessor.update)

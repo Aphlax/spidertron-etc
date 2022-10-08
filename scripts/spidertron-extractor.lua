@@ -233,7 +233,7 @@ function SpidertronExtractor.update(tick)
         ::continue::
     end
 end
-Events.repeatingTask(30, SpidertronExtractor.update)
+Events.repeatingTask(30, 3, SpidertronExtractor.update)
 
 function SpidertronExtractor.on_open_gui(event)
     if event.gui_type ~= defines.gui_type.entity or not event.entity then return end

@@ -128,7 +128,7 @@ function EquipmentCharger.update(tick)
         ::continue::
     end
 end
-Events.repeatingTask(10, EquipmentCharger.update)
+Events.repeatingTask(10, 1, EquipmentCharger.update)
 
 -- Returns true if all parts have been charged.
 function EquipmentCharger.chargeItem(entity, equipment_item, transfer_available)

@@ -64,7 +64,7 @@ function SpidertronSender.update(tick)
         ::continue::
     end
 end
-Events.repeatingTask(61, SpidertronSender.update)
+Events.repeatingTask(30, 6, SpidertronSender.update)
 
 function SpidertronSender.update_connection_state(sender)
     local inventory = sender.entity.get_inventory(defines.inventory.chest)

@@ -30,7 +30,7 @@ local extractor = {
     se_allow_in_space = true,
     picture = extractorAnimation(),
     collision_box = {{-0.8, -0.8},{0.8, 0.8}},
-    selection_box = {{-1, -1},{1, 1}},
+    selection_box = {{-0.8, -0.8},{0.8, 0.8}},
     map_color = {r = 0.816, g = 0.792, b = 0.533},
     minable = {mining_time = 0.2, result = "spidertron-extractor"},
 

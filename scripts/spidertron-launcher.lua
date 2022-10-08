@@ -88,7 +88,7 @@ function SpidertronLauncher.update(tick)
         ::continue::
     end
 end
-Events.repeatingTask(60, SpidertronLauncher.update)
+Events.repeatingTask(60, 4, SpidertronLauncher.update)
 
 function animateLauncher(launcher, tick)
     local animation_speed, time_to_live = 1, 7 * 60

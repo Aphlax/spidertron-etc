@@ -125,8 +125,6 @@ local animation = animationFactory({
     height = 320,
     shift = { 0.75, 0 },
     extras = {
-        type = "animation",
-        name = "spidertron-launcher-animation",
         frame_count = 151,
         line_length = 12,
         animation_speed = "0.5",
@@ -138,6 +136,8 @@ local animation = animationFactory({
         }),
     },
 })()
+animation.type = "animation"
+animation.name = "spidertron-launcher-animation"
 
 local item = {
     type = "item",

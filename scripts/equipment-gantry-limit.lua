@@ -60,6 +60,6 @@ function EquipmentGantryLimit.update(tick)
         ::continue::
     end
 end
-Events.repeatingTask(27, EquipmentGantryLimit.update)
+Events.repeatingTask(15, 2, EquipmentGantryLimit.update)
 
 return EquipmentGantryLimit

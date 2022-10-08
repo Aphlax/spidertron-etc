@@ -33,8 +33,14 @@ local function repeating_task_handler(interval, fn)
   end
 end
 
-function Events.repeatingTask(interval, fn)
-  Events.onTick(0, function(tick) Events.onTick(tick + interval, repeating_task_handler(interval, fn)) end)
+function Events.repeatingTask(interval, start_offset, fn)
+  Events.onTick(0, function(start_tick)
+    local next_tick_delta = interval - (start_tick % interval) + start_offset
+    if next_tick_delta > interval then
+      next_tick_delta = next_tick_delta - interval
+    end
+    Events.onTick(start_tick + next_tick_delta, repeating_task_handler(interval, fn))
+  end)
 end
 
 return Events
