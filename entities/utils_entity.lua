@@ -20,11 +20,11 @@ end
 function animationFactory(baseConfig)
     return function(config)
         config = config or {}
-        local hr_filename = baseConfig.filename, nil
+        local hr_filename = baseConfig.filename
         if config.filename ~= nil then
             hr_filename = config.filename
         end
-        local filename = hr_filename:gsub("/hr-", "/")
+        local filename = hr_filename:gsub("/hr%-", "/")
         local height = baseConfig.height
         if config.height ~= nil then
             height = config.height
@@ -58,10 +58,6 @@ function animationFactory(baseConfig)
             filename = filename:gsub("DIR", config.direction)
             hr_filename = hr_filename:gsub("DIR", config.direction)
         end
-        local half_shift = nil
-        if shift ~= nil then
-            half_shift = { shift[1] / 2, shift[2] / 2 }
-        end
         local half_offset = 0
         if offset ~= nil then
             half_offset = offset / 2
@@ -83,7 +79,7 @@ function animationFactory(baseConfig)
             filename = filename,
             height = height / 2,
             width = width / 2,
-            shift = half_shift,
+            shift = shift,
             scale = 1,
             priority = "high",
             frame_count = frames,
@@ -103,7 +99,7 @@ function animationFactory(baseConfig)
                     }),
                     copyAndAdd(result, {
                         draw_as_shadow = true,
-                        hr_version = copyAndAdd(result.hr_version, { draw_as_shadow = true }),
+                        hr_version = copyAndAdd(result.hr_version, {draw_as_shadow = true}),
                     }),
                 },
             }
