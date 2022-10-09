@@ -27,8 +27,8 @@ local sender = {
     inventory_size = 1,
     enable_inventory_bar = false,
     circuit_wire_connection_point = {
-        wire = {red = {-0.3, -0.3}, green = {0.3, -0.3}},
-        shadow = {red = {0.3, 0.2}, green = {0.9, 0.2}},
+        wire = {red = {-0.2, -0.19}, green = {-0.35, -0.2}},
+        shadow = {red = {0.75, 0.42}, green = {0.5, 0.42}},
     },
     circuit_wire_max_distance = 10,
 }

@@ -63,8 +63,8 @@ local output = {
 }
 
 local wire_connection = {
-    wire = {red = {-0.1, 0}, green = {0.1, 0}},
-    shadow = {red = {1.2-0.1, 0}, green = {1.2+0.1, 0}},
+    wire = {red = {0.1, -0.17}, green = {-0.1, -0.15}},
+    shadow = {red = {1.9+0.1, 1.1}, green = {1.9-0.1, 1.12}},
 }
 local signal = {
     type = "constant-combinator",
