@@ -16,14 +16,14 @@ local launcher = {
     icon = "__spidertron-fef__/graphics/icon/spidertron-launcher.png",
     icon_size = 64,
     flags = {"placeable-player", "player-creation", "not-rotatable", "no-automated-item-removal", "no-automated-item-insertion"},
-    max_health = 250,
+    max_health = 800,
     corpse = "big-remnants",
-    dying_explosion = "medium-explosion",
+    dying_explosion = "big-explosion",
     alert_icon_shift = util.by_pixel(0, -12),
     se_allow_in_space = true,
     collision_box = {{-2.8, -2.2}, {2.8, 2.2}},
     selection_box = {{-2.9, -2.3}, {2.9, 2.3}},
-    resistances ={{ type = "impact", percent = 50 }},
+    resistances ={{type = "impact", percent = 80}},
     open_sound = {filename = "__base__/sound/machine-open.ogg", volume = 0.85},
     close_sound = {filename = "__base__/sound/machine-close.ogg", volume = 0.75},
     vehicle_impact_sound =  {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
@@ -51,26 +51,17 @@ local launcher = {
     },
     working_sound = {
       apparent_volume = 1.5,
-      idle_sound = {
-        filename = "__base__/sound/idle1.ogg",
-        volume = 0.6
-      },
+      idle_sound = {filename = "__base__/sound/idle1.ogg", volume = 0.6},
       sound = {
-        {
-          filename = "__base__/sound/assembling-machine-t1-1.ogg",
-          volume = 0.5
-        },
-        {
-          filename = "__base__/sound/assembling-machine-t1-2.ogg",
-          volume = 0.5
-        }
-      }
+        {filename = "__base__/sound/assembling-machine-t1-1.ogg", volume = 0.3},
+        {filename = "__base__/sound/assembling-machine-t1-2.ogg", volume = 0.3},
+      },
     },
     working_visualisations =
     {
       {
         effect = "uranium-glow",
-        light = {intensity = 0.5, size = 8, shift = {0.0, 0.0}, color = {r = 1, g = 0.9, b = 0.5}}
+        light = {intensity = 0.5, size = 8, shift = {0, 0}, color = {r = 1, g = 0.9, b = 0.5}}
       },
     },
 }
@@ -80,11 +71,12 @@ local container = {
     name = "spidertron-launcher-container",
     icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
     icon_size = 64,
-    flags = {"placeable-neutral", "not-blueprintable", "not-deconstructable", "no-automated-item-removal",},
-    max_health = 250,
-    open_sound = {filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43},
-    close_sound = {filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43},
+    flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-removal",},
+    max_health = 100,
+    open_sound = {filename = "__base__/sound/machine-open.ogg", volume = 0.85},
+    close_sound = {filename = "__base__/sound/machine-close.ogg", volume = 0.75},
     se_allow_in_space = true,
+    allow_copy_paste = false,
     picture = {
         direction_count = 4,
         frame_count = 1,

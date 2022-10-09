@@ -4,7 +4,7 @@ local container = {
     icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
     icon_size = 64,
     flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-removal"},
-    max_health = 250,
+    max_health = 100,
     open_sound = {filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43},
     close_sound = {filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43},
     se_allow_in_space = true,

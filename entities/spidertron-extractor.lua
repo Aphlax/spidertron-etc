@@ -23,7 +23,10 @@ local extractor = {
     icon_size = 64,
     flags = {"placeable-player", "player-creation", "not-rotatable", "no-automated-item-insertion", "no-automated-item-removal"},
     max_health = 500,
+    corpse = "small-remnants",
+    dying_explosion = "medium-explosion",
     alert_icon_shift = util.by_pixel(0, -12),
+    resistances ={{type = "impact", percent = 50}},
     open_sound = {filename = "__base__/sound/metallic-chest-open.ogg", volume=0.43},
     close_sound = {filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.43},
     vehicle_impact_sound =  {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
@@ -76,7 +79,6 @@ local signal = {
     se_allow_in_space = true,
     allow_copy_paste = false,
     collision_box = {{-0.1, -0.1}, {0.1, 0.1}},
-    collision_mask = {"floor-layer"},
     selection_box = {{-0.4, -0.4}, {0.4, 0.4}},
     sprites = {
         north = blank_image,
