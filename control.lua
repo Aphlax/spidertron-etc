@@ -1,7 +1,7 @@
 require("scripts.lib.utils")
 GameUtils = require("scripts.lib.game-utils")
 GuiUtils = require("scripts.lib.gui-utils")
-SpidertronFefUtils = require("scripts.lib.spidertron-fef-utils")
+SpidertronEtcUtils = require("scripts.lib.spidertron-etc-utils")
 Events = require("scripts.lib.events")
 
 -- Self-contained.

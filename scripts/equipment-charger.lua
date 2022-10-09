@@ -24,7 +24,7 @@ function EquipmentCharger.on_create(event)
     -- Create input chest.
     local input = entity.surface.create_entity({
         force = entity.force,
-        name = SpidertronFefUtils.getInputContainerName(entity.direction),
+        name = SpidertronEtcUtils.getInputContainerName(entity.direction),
         position = v_add(entity.position, v_rotate({ x = -0.5, y = 0.4 }, entity.direction)),
         raise_built = false,
         create_build_effect_smoke = false,
@@ -34,7 +34,7 @@ function EquipmentCharger.on_create(event)
     -- Create output chest.
     local output = entity.surface.create_entity({
         force = entity.force,
-        name = SpidertronFefUtils.getOutputContainerName(entity.direction),
+        name = SpidertronEtcUtils.getOutputContainerName(entity.direction),
         position = v_add(entity.position, v_rotate({ x = 0.5, y = 0.4 }, entity.direction)),
         raise_built = false,
         create_build_effect_smoke = false,

@@ -1,9 +1,9 @@
 {
-  "name": "spidertron-fef",
-  "version": "0.0.0",
-  "title": "Spidertron FEF",
+  "name": "spidertron-etc",
+  "version": "1.0.0",
+  "title": "Spidertron etc.",
   "author": "Aphlax",
   "factorio_version": "1.1",
-  "description": "Adds f'ing extra features to the spidertron that should have been added a long time ago by some mod.",
+  "description": "Spidertron - extra twitchy capabilities adds utilities for the spidertron like a docking port, a launcher and many more.",
   "dependencies": ["base >= 1.1", "equipment-gantry >= 0.1.4"]
 }

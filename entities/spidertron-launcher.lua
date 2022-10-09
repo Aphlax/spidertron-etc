@@ -1,10 +1,10 @@
-require("__spidertron-fef__/scripts/lib/utils.lua")
+require("__spidertron-etc__/scripts/lib/utils.lua")
 
 local launcherAnimation = animationFactory({
-    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-launcher-shadow.png",
+    filename = "__spidertron-etc__/graphics/entity/hr-spidertron-launcher-shadow.png",
     width = 448,
     height = 320,
-    shift = { 0.75, 0 },
+    shift = {0.75, 0},
     frames = 1,
     frames_per_line = 1,
     offset = 0,
@@ -13,7 +13,7 @@ local launcherAnimation = animationFactory({
 local launcher = {
     type = "assembling-machine",
     name = "spidertron-launcher",
-    icon = "__spidertron-fef__/graphics/icon/spidertron-launcher.png",
+    icon = "__spidertron-etc__/graphics/icon/spidertron-launcher.png",
     icon_size = 64,
     flags = {"placeable-player", "player-creation", "not-rotatable", "no-automated-item-removal", "no-automated-item-insertion"},
     max_health = 800,
@@ -37,7 +37,7 @@ local launcher = {
     minable = {mining_time = 1, result = "spidertron-launcher"},
 
     -- assembly-machine
-    crafting_categories = {"spidertron-fef"},
+    crafting_categories = {"spidertron-etc"},
     fixed_recipe = "spidertron-launch",
     crafting_speed = 1,
     ingredient_count = 0,
@@ -69,7 +69,7 @@ local launcher = {
 local container = {
     type = "container",
     name = "spidertron-launcher-container",
-    icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
+    icon = "__spidertron-etc__/graphics/icon/spidertron-etc-container.png",
     icon_size = 64,
     flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-removal",},
     max_health = 100,
@@ -80,7 +80,7 @@ local container = {
     picture = {
         direction_count = 4,
         frame_count = 1,
-        filename = "__spidertron-fef__/graphics/blank.png",
+        filename = "__spidertron-etc__/graphics/blank.png",
         width = 1,
         height = 1,
         priority = "low"
@@ -95,7 +95,7 @@ local container = {
 
 local recipe_cat = {
     type = "recipe-category",
-    name = "spidertron-fef",
+    name = "spidertron-etc",
 }
 
 local launch_recipe = {
@@ -103,7 +103,7 @@ local launch_recipe = {
     name = "spidertron-launch",
     icon = "__base__/graphics/icons/spidertron.png",
     icon_size = 64,
-    category = "spidertron-fef",
+    category = "spidertron-etc",
     subgroup = "equipment",
     enabled = false,
     energy_required = 7,
@@ -112,7 +112,7 @@ local launch_recipe = {
 }
 
 local animation = animationFactory({
-    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-launcher-shadow.png",
+    filename = "__spidertron-etc__/graphics/entity/hr-spidertron-launcher-shadow.png",
     width = 448,
     height = 320,
     shift = {0.75, 0},
@@ -131,7 +131,7 @@ animation.type = "animation"
 animation.name = "spidertron-launcher-animation"
 
 local animation_tint = animationFactory({
-    filename = "__spidertron-fef__/graphics/entity/hr-spidertron-launcher-tint.png",
+    filename = "__spidertron-etc__/graphics/entity/hr-spidertron-launcher-tint.png",
     width = 448,
     height = 320,
     shift = {0.75, 0},
@@ -158,7 +158,7 @@ local sound = {
 local item = {
     type = "item",
     name = "spidertron-launcher",
-    icon = "__spidertron-fef__/graphics/icon/spidertron-launcher.png",
+    icon = "__spidertron-etc__/graphics/icon/spidertron-launcher.png",
     icon_size = 64,
     subgroup = "transport",
     order = "b[personal-transport]-y",
@@ -179,7 +179,7 @@ local recipe = {
 local technology = {
     type = "technology",
     name = "spidertron-launcher",
-    icon = "__spidertron-fef__/graphics/technology/spidertron-launcher.png",
+    icon = "__spidertron-etc__/graphics/technology/spidertron-launcher.png",
     icon_size = 256,
     order = "d-e-f",
     prerequisites = {"spidertron"},

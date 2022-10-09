@@ -1,7 +1,7 @@
 
 local container = {
     type = "container",
-    icon = "__spidertron-fef__/graphics/icon/spidertron-fef-container.png",
+    icon = "__spidertron-etc__/graphics/icon/spidertron-etc-container.png",
     icon_size = 64,
     flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-removal"},
     max_health = 100,
@@ -12,7 +12,7 @@ local container = {
     picture = {
         direction_count = 4,
         frame_count = 1,
-        filename = "__spidertron-fef__/graphics/blank.png",
+        filename = "__spidertron-etc__/graphics/blank.png",
         width = 1,
         height = 1,
         priority = "low"
@@ -26,17 +26,17 @@ local container = {
 }
 
 local input_vertical = table.deepcopy(container)
-input_vertical.name = "spidertron-fef-input-vertical"
+input_vertical.name = "spidertron-etc-input-vertical"
 local output_vertical = table.deepcopy(container)
 output_vertical.flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-insertion"}
-output_vertical.name = "spidertron-fef-output-vertical"
+output_vertical.name = "spidertron-etc-output-vertical"
 
 container.collision_box = {{-0.8, -0.3},{0.8, 0.3}}
 container.selection_box = {{-0.8, -0.3},{0.8, 0.3}}
 local input_horizontal = table.deepcopy(container)
-input_horizontal.name = "spidertron-fef-input-horizontal"
+input_horizontal.name = "spidertron-etc-input-horizontal"
 local output_horizontal = table.deepcopy(container)
-output_horizontal.name = "spidertron-fef-output-horizontal"
+output_horizontal.name = "spidertron-etc-output-horizontal"
 output_horizontal.flags = {"placeable-player", "not-blueprintable", "not-deconstructable", "no-automated-item-insertion"}
 
 data:extend({input_vertical, output_vertical, input_horizontal, output_horizontal})

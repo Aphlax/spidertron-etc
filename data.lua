@@ -1,6 +1,6 @@
 require("entities.utils_entity")
 
-require("entities.spidertron-fef-containers")
+require("entities.spidertron-etc-containers")
 
 require("entities.spidertron-launcher")
 require("entities.spidertron-processor")
