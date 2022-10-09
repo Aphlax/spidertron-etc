@@ -1,0 +1,15 @@
+Feedback and suggestions are highly appreciated.
+
+Adds the Spidertron Docking Port for spidertrons to unload items and read its inventory.
+Adds the Spidertron Launcher for automatically launching spidertrons into the world.
+Adds the Spidertron Sender for automating movement of spidertrons.
+Adds the Equipment Charger and Charging Pad for fast charging equipment in armor and spidertrons.
+Adds the Spidertron Processor for setting the logistic request of a spidertron before launch.
+Modifies the Equipment Gantry mod to limit the number of items in input chests.
+
+This mod is in beta and compatibility is not fully tested yet (as of 2022-10-09).
+
+Known Compatibility Issues:
+- Be the first to find one!
+
+Developed and maintained by Aphlax#3029.
