@@ -151,6 +151,7 @@ function SpidertronExtractor.update(tick)
                 if spider.speed == 0 then
                     local dir = v_sub(target, spider.position)
                     local length = 2.05 + math.min((distance - DOCKED_RADIUS) / 1.9, 0.7)
+                    if spider.name ~= "spidertron" then length = 2.05 end
                     spider.autopilot_destination =
                             v_add(spider.position, v_scale(dir, length / distance))
                 elseif spider.speed > 0.15 and distance < DOCKED_RADIUS / 1.2 then

@@ -93,7 +93,11 @@ function SpidertronLauncher.update(tick)
                     {position = launcher.entity.position, radius = 2, type = "spider-vehicle"})
             if input.is_empty() or #output > 0 then goto continue end
             local spidertron_item = input[1]
-            if not spidertron_item.valid_for_read or spidertron_item.name ~= "spidertron" then goto continue end
+            if not spidertron_item.valid_for_read then goto continue end
+            if not spidertron_item.prototype.place_result or
+                    spidertron_item.prototype.place_result.type ~= "spider-vehicle" then
+                goto continue
+            end
 
             launcher.task_start = tick
             launcher.internal_inventory.insert(spidertron_item)
@@ -127,7 +131,7 @@ function launchSpider(launcher, tick)
             force = launcher.entity.force,
             position = launcher.entity.position,
             direction = launcher.entity.direction,
-            name = launcher.internal_inventory[1].name,
+            name = launcher.internal_inventory[1].prototype.place_result.name,
             item = launcher.internal_inventory[1],
             raise_built = false,
             create_build_effect_smoke = false,
@@ -151,13 +155,12 @@ function launchSpider(launcher, tick)
             volume_modifier = 0.8,
         })
         launcher.entity.active = true
-    elseif task_time == 4 * 60 then
-        if launcher.internal_inventory.is_empty() then return end
+    elseif task_time >= 4 * 60 and not launcher.internal_inventory.is_empty() then
         launcher.entity.surface.create_entity({
             force = launcher.entity.force,
             position = translate(launcher.entity.position, 0, -0.2),
             direction = launcher.entity.direction,
-            name = launcher.internal_inventory[1].name,
+            name = launcher.internal_inventory[1].prototype.place_result.name,
             item = launcher.internal_inventory[1],
         })
         launcher.internal_inventory.clear()

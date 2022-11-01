@@ -1,9 +1,9 @@
 {
   "name": "spidertron-etc",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "title": "Spidertron etc.",
   "author": "Aphlax",
   "factorio_version": "1.1",
-  "description": "Spidertron - Extra Tweaks & Capabilities adds utilities for the spidertron like a docking port, a launcher and many more.",
+  "description": "Spidertron - Extra Tweaks & Capabilities adds utilities for spidertrons like a docking port, a launcher and more.",
   "dependencies": ["base >= 1.1", "equipment-gantry >= 0.1.4"]
 }

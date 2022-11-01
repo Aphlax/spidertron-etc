@@ -8,10 +8,9 @@ Feedback and suggestions are highly appreciated.
 - Modifies the Equipment Gantry mod to limit the number of items in input chests.
 
 ---
-This mod is in beta and compatibility is not fully tested yet (as of 2022-10-09).
+Changelog
 
-Known Compatibility Issues:
+- Fixed compatibility with other Spidertron mods.
 
-- Be the first to find one!
-
-Developed and maintained by Aphlax#3029.
+---
+Developed and maintained by Aphlax, for feedback tag me in https://discord.gg/factorio #mod-making.

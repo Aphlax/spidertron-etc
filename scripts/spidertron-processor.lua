@@ -88,13 +88,17 @@ function SpidertronProcessor.update(tick)
         local output = processor.output.get_inventory(defines.inventory.chest)
         if input.is_empty() or not output.is_empty() then goto continue end
         local spidertron_item = input[1]
-        if not spidertron_item.valid_for_read or not (spidertron_item.name == "spidertron") then goto continue end
+        if not spidertron_item.valid_for_read then goto continue end
+        if not spidertron_item.prototype.place_result or
+                spidertron_item.prototype.place_result.type ~= "spider-vehicle" then
+            goto continue
+        end
         
         local spidertron = processor.entity.surface.create_entity({
             force = processor.entity.force,
             position = processor.entity.position,
             direction = processor.entity.direction,
-            name = spidertron_item.name,
+            name = spidertron_item.prototype.place_result.name,
             item = spidertron_item,
             raise_built = false,
             create_build_effect_smoke = false,
