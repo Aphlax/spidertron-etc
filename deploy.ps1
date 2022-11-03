@@ -34,4 +34,4 @@ forEach($dir in $directories) {
   cp $files $to
 }
 
-compress-archive -path $targetDir -destinationPath "$targetDir.zip"
+&"C:\Program Files\7-Zip\7z" a -tzip "$targetDir.zip" $targetDir
