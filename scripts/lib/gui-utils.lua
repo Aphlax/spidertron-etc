@@ -92,17 +92,29 @@ function GuiUtils.clickSlot(event, item)
     else
         if not item.valid_for_read or item.count == 0 then return end
         if event.button == defines.mouse_button_type.left then
-            cursor.set_stack(item)
-            item.clear()
-            player.play_sound({path = "utility/inventory_click"})
+            if event.shift then
+                local player_inventory = player.get_inventory(defines.inventory.character_main)
+                item.count = item.count - player_inventory.insert(item)
+                player.play_sound({path = "utility/inventory_move"})
+            else
+                cursor.set_stack(item)
+                item.clear()
+                player.play_sound({path = "utility/inventory_click"})
+            end
         elseif event.button == defines.mouse_button_type.right then
-            cursor.set_stack(item)
-            cursor.count = (item.count + 1) / 2
-            item.count = item.count - cursor.count
-            player.play_sound({path = "utility/inventory_click"})
+            if event.shift then
+                local player_inventory = player.get_inventory(defines.inventory.character_main)
+                local count = player_inventory.insert({name = item.name, count = item.count / 2})
+                item.count = item.count - count
+                player.play_sound({path = "utility/inventory_move"})
+            else
+                cursor.set_stack(item)
+                cursor.count = (item.count + 1) / 2
+                item.count = item.count - cursor.count
+                player.play_sound({path = "utility/inventory_click"})
+            end
         end
     end
-    GuiUtils.updateSlot(event.element, item)
 end
 
 return GuiUtils

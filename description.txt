@@ -13,4 +13,4 @@ Changelog
 - Fixed compatibility with other Spidertron mods.
 
 ---
-Developed and maintained by Aphlax, for feedback tag me in https://discord.gg/factorio #mod-making.
+Developed and maintained by Aphlax, for feedback create a discussion and ping me in https://discord.gg/factorio #mod-making.

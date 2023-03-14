@@ -31,9 +31,8 @@ function SpidertronExtractor.on_create(event)
         local dist = v_sub(extractor.entity.position, entity.position)
         if math.abs(dist.x) <= MIN_DISTANCE and math.abs(dist.y) <= MIN_DISTANCE then
             local player = event.player_index and game.get_player(event.player_index) or nil
-            local inventory = player and player.get_inventory(defines.inventory.character_main)
-            entity.mine({ inventory = inventory.entity_owner and inventory or nil,
-                          force = true, ignore_mineable = true, })
+            global.empty_inventory = global.empty_inventory or game.create_inventory(0)
+            entity.mine({ inventory = global.empty_inventory, force = true, ignore_mineable = true })
             rendering.draw_rectangle({
                 left_top = translate(extractor.entity.position, -MIN_DISTANCE, -MIN_DISTANCE),
                 right_bottom = translate(extractor.entity.position, MIN_DISTANCE, MIN_DISTANCE),
@@ -314,6 +313,7 @@ function SpidertronExtractor.on_gui_click(event)
 
     local output = extractor.output.get_inventory(defines.inventory.chest)
     GuiUtils.clickSlot(event, output[1])
+    GuiUtils.updateSlot(event.element, output[1])
 end
 Events.addListener(defines.events.on_gui_click, SpidertronExtractor.on_gui_click)
 

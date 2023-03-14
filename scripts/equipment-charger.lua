@@ -107,6 +107,7 @@ function EquipmentCharger.update(tick)
         
         ::continue::
     end
+    local charged_players = {}
     for unit_number, charger in pairs(global.equipment_charger_pads or {}) do
         if not charger.valid then
             global.equipment_charger_pads[unit_number] = nil
@@ -121,10 +122,16 @@ function EquipmentCharger.update(tick)
             },
         })
         for _, character in pairs(characters) do
+            if some(charged_players, function(other) return character.unit_number == other end) then
+                goto continue2
+            end
+            push(charged_players, character.unit_number)
             local armor = character.get_inventory(defines.inventory.character_armor)
             if not armor.is_empty() then
                 EquipmentCharger.chargeItem(charger, armor[1], PAD_MAX_TRANSFER_PER_UPDATE)
             end
+
+            ::continue2::
         end
 
         ::continue::
