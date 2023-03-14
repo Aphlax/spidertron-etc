@@ -1,4 +1,8 @@
+# Before submitting & deploying, make sure you have:
+# - updated the mod version in info.json and
+# - updated the changelog in description.txt.
 # Deploy this mod with ".\deploy.ps1 -v 1.0.X".
+# Navigate to https://mods.factorio.com/mod/spidertron-etc/downloads, then click Edit Releases (after logging in).
 
 param($v)
 

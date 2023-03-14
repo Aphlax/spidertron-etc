@@ -10,6 +10,8 @@ Feedback and suggestions are highly appreciated.
 ---
 Changelog
 
+- Fixed launcher losing the equipment grid.
+- Prevent faster charging when standing on multiple charging pads.
 - Fixed compatibility with other Spidertron mods.
 
 ---
