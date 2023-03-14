@@ -1,3 +1,5 @@
+# Deploy this mod with ".\deploy.ps1 -v 1.0.X".
+
 param($v)
 
 if (-not ($v -match "^[0-9]\.[0-9]\.[0-9]+$")) {
