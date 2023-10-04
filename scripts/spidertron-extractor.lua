@@ -249,7 +249,7 @@ function SpidertronExtractor.on_open_gui(event)
 
     local anchor = { gui = defines.relative_gui_type.container_gui,
                      position = defines.relative_gui_position.right }
-    local frame = GuiUtils.createFrame(event, SpidertronExtractor.window_name, anchor)
+    local frame = GuiUtils.createFrame(event, SpidertronExtractor.window_name, anchor, true)
 
     local div1 = frame.add({type = "flow", direction = "horizontal", name = "div1"})
     local output = extractor.output.get_inventory(defines.inventory.chest)

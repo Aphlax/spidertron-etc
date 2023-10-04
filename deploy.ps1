@@ -13,10 +13,11 @@ if (-not ($v -match "^[0-9]\.[0-9]\.[0-9]+$")) {
 $directories = @(
   @("/", @("control.lua", "data.lua", "info.json", "thumbnail.png")),
   @("/entities/", "*.lua"),
-  @("/graphics/", "blank.png"),
+  @("/graphics/", "*.png"),
   @("/graphics/entity/", "*.png"),
   @("/graphics/icon/", "*.png"),
   @("/graphics/technology/", "*.png"),
+  @("/graphics/informatron/", "*.png"),
   @("/locale/en/", "base.cfg"),
   @("/scripts/", "*.lua"),
   @("/scripts/lib/", "*.lua")

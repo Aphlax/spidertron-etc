@@ -129,7 +129,7 @@ function SpidertronSender.on_open_gui(event)
 
     local anchor = { gui = defines.relative_gui_type.container_gui,
                      position = defines.relative_gui_position.left }
-    local frame = GuiUtils.createFrame(event, SpidertronSender.window_name, anchor)
+    local frame = GuiUtils.createFrame(event, SpidertronSender.window_name, anchor, true)
 
     local div1 = frame.add({type = "flow", direction = "horizontal", name = "div1"})
     div1.add({type = "label", caption = {"spidertron-etc.spidertron-sender-state"}})

@@ -1,6 +1,6 @@
 local GuiUtils = {}
 
-function GuiUtils.createFrame(event, name, anchor)
+function GuiUtils.createFrame(event, name, anchor, informatron)
     local player = game.get_player(event.player_index)
     local frame = player.gui.relative.add(
             {type = "frame", name = name, direction="vertical", anchor = anchor})
@@ -23,17 +23,18 @@ function GuiUtils.createFrame(event, name, anchor)
     title_empty.style.left_margin = 4
     title_empty.style.right_margin = 0
     title_empty.style.height = 24
-    --[[
-    local title_informatron = title_div.add({
-        type="sprite-button",
-        name="goto_informatron_delivery_cannons",
-        sprite = "virtual-signal/informatron",
-        style="informatron_close_button",
-        tooltip={"spidertron-etc.informatron-open-help"}
-    })
-    title_informatron.style.width = 28
-    title_informatron.style.height = 28
-    --]]
+    if informatron and game.active_mods["informatron"] then
+        local title_informatron = title_div.add({
+            type="sprite-button",
+            name="open-informatron",
+            sprite = "virtual-signal/informatron",
+            style="informatron_close_button",
+            tooltip={"spidertron-etc.help_spidertron-etc"}
+        })
+        title_informatron.style.width = 28
+        title_informatron.style.height = 28
+        title_informatron.style.left_margin = 4
+    end
     return frame
 end
 
