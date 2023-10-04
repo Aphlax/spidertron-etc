@@ -126,26 +126,6 @@ function launchSpider(launcher, tick)
             animation_speed = animation_speed,
             animation_offset = -(tick % time_to_live) * animation_speed,
         })
-
-        -- TODO(1.1.77): replace with spidertron_item.entity_color
-        local spidertron_item = launcher.internal_inventory[1]
-        local spidertron = launcher.entity.surface.create_entity({
-            force = launcher.entity.force,
-            position = launcher.entity.position,
-            direction = launcher.entity.direction,
-            name = spidertron_item.prototype.place_result.name,
-            item = spidertron_item,
-            raise_built = false,
-            create_build_effect_smoke = false,
-        })
-        launcher.internal_inventory.remove({name = spidertron_item.name, count = 1})
-        local color = spidertron.color
-        spidertron.mine({
-            inventory = launcher.internal_inventory,
-            force = true,
-            raise_destroyed = false,
-            ignore_mineable = true
-        })
         rendering.draw_animation({
             animation = "spidertron-launcher-animation-tint",
             surface = launcher.entity.surface,
@@ -154,7 +134,7 @@ function launchSpider(launcher, tick)
             time_to_live = time_to_live - 1 / animation_speed,
             animation_speed = animation_speed,
             animation_offset = -(tick % time_to_live) * animation_speed,
-            tint = color,
+            tint = launcher.internal_inventory[1].entity_color or {r = 1, g = 0.5, b = 0},
         })
 
         game.play_sound({
@@ -170,6 +150,8 @@ function launchSpider(launcher, tick)
             direction = launcher.entity.direction,
             name = launcher.internal_inventory[1].prototype.place_result.name,
             item = launcher.internal_inventory[1],
+            raise_built = true,
+            create_build_effect_smoke = true,
         })
         launcher.internal_inventory.clear()
     elseif task_time >= 7 * 60 then
