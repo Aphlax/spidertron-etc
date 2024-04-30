@@ -77,6 +77,22 @@ function push(t, item)
     t[#t + 1] = item
 end
 
+function deepcopy(object)
+    if type(object) == "table" then
+        local result = {}
+        for key, value in ipairs(object) do
+            if type(value) == "table" then
+                result[key] = deepcopy(value)
+            else
+                result[key] = value
+            end
+        end
+        return result
+    else
+        return object
+    end
+end
+
 -- Vectors
 
 function translate(position, x, y)

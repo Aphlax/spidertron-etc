@@ -54,6 +54,7 @@ local output = {
     max_health = 100,
     se_allow_in_space = true,
     allow_copy_paste = false,
+    collision_mask = {},
     collision_box = {{-0.6, -0.6}, {0.6, 0.6}},
     selection_box = {{-0.6, -0.6}, {0.6, 0.6}},
     picture = blank_image,
@@ -78,6 +79,7 @@ local signal = {
     max_health = 100,
     se_allow_in_space = true,
     allow_copy_paste = false,
+    collision_mask = {},
     collision_box = {{-0.1, -0.1}, {0.1, 0.1}},
     selection_box = {{-0.4, -0.4}, {0.4, 0.4}},
     sprites = {
@@ -103,7 +105,7 @@ local signal = {
     selection_priority = 52,
     circuit_wire_connection_points =
         {wire_connection,  wire_connection,  wire_connection,  wire_connection},
-    circuit_wire_max_distance = 10
+    circuit_wire_max_distance = 15
 }
 
 local docked_signal = {

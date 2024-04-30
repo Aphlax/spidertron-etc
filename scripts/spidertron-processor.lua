@@ -35,7 +35,6 @@ function SpidertronProcessor.on_create(event)
     global.spidertron_processors = global.spidertron_processors or {}
     global.spidertron_processors[entity.unit_number] = {
         entity = entity,
-        unit_number = entity.unit_number,
         input = input,
         output = output,
     }
@@ -76,6 +75,24 @@ Events.addListener(defines.events.on_entity_died, SpidertronProcessor.on_delete)
 Events.addListener(defines.events.on_robot_mined_entity, SpidertronProcessor.on_delete)
 Events.addListener(defines.events.on_player_mined_entity, SpidertronProcessor.on_delete)
 Events.addListener(defines.events.script_raised_destroy, SpidertronProcessor.on_delete)
+
+function SpidertronProcessor.on_clone(event)
+    if not event.destination or not event.destination.valid or not global.spidertron_processors then return end
+    if event.destination.name == SpidertronProcessor.name then
+        local input = event.destination.surface.find_entity(
+                SpidertronEtcUtils.getInputContainerName(event.destination.direction),
+                v_add(event.destination.position, v_rotate({ x = -0.5, y = 0.4 }, event.destination.direction)))
+        local output = event.destination.surface.find_entity(
+                SpidertronEtcUtils.getOutputContainerName(event.destination.direction),
+                v_add(event.destination.position, v_rotate({ x = 0.5, y = 0.4 }, event.destination.direction)))
+        global.spidertron_processors[event.destination.unit_number] = {
+            entity = event.destination,
+            input = input,
+            output = output,
+        }
+    end
+end
+Events.addListener(defines.events.on_entity_cloned, SpidertronProcessor.on_clone)
 
 function SpidertronProcessor.update(tick)
     for unit_number, processor in pairs(global.spidertron_processors or {}) do

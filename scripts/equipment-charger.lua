@@ -86,6 +86,24 @@ Events.addListener(defines.events.on_robot_mined_entity, EquipmentCharger.on_del
 Events.addListener(defines.events.on_player_mined_entity, EquipmentCharger.on_delete)
 Events.addListener(defines.events.script_raised_destroy, EquipmentCharger.on_delete)
 
+function EquipmentCharger.on_clone(event)
+    if not event.destination or not event.destination.valid or not global.spidertron_chargers then return end
+    if event.destination.name == EquipmentCharger.name then
+        local input = event.destination.surface.find_entity(
+                SpidertronEtcUtils.getInputContainerName(event.destination.direction),
+                v_add(event.destination.position, v_rotate({ x = -0.5, y = 0.4 }, event.destination.direction)))
+        local output = event.destination.surface.find_entity(
+                SpidertronEtcUtils.getOutputContainerName(event.destination.direction),
+                v_add(event.destination.position, v_rotate({ x = 0.5, y = 0.4 }, event.destination.direction)))
+        global.spidertron_chargers[event.destination.unit_number] = {
+            entity = event.destination,
+            input = input,
+            output = output,
+        }
+    end
+end
+Events.addListener(defines.events.on_entity_cloned, EquipmentCharger.on_clone)
+
 function EquipmentCharger.update(tick)
     for unit_number, charger in pairs(global.spidertron_chargers or {}) do
         if not charger.entity.valid or not charger.input.valid or not charger.output.valid then

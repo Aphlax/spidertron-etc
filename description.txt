@@ -10,6 +10,7 @@ Feedback and suggestions are highly appreciated.
 ---
 Changelog
 
+- Fixed compatibility issues with Space Exploration spaceships.
 - Added in-game guide with the informatron mod.
 - Fixed compatibility with other Spidertron mods once again.
 - Fixed launcher losing the equipment grid.
@@ -17,4 +18,4 @@ Changelog
 - Fixed compatibility with other Spidertron mods.
 
 ---
-Developed and maintained by Aphlax, for feedback create a discussion and ping me in https://discord.gg/factorio #mod-making.
+Developed and maintained by Aphlax, for feedback create a discussion and ping me in https://discord.gg/factorio #modding-discussion.

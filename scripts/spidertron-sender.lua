@@ -127,6 +127,10 @@ function SpidertronSender.on_open_gui(event)
         sender.state = SpidertronSender.State.ready
     end
 
+    local player = game.get_player(event.player_index)
+    if player.gui.relative[SpidertronSender.window_name] then
+        player.gui.relative[SpidertronSender.window_name].destroy()
+    end
     local anchor = { gui = defines.relative_gui_type.container_gui,
                      position = defines.relative_gui_position.left }
     local frame = GuiUtils.createFrame(event, SpidertronSender.window_name, anchor, true)

@@ -88,8 +88,12 @@ Events.addListener(defines.events.on_robot_built_entity, SpidertronExtractor.on_
 Events.addListener(defines.events.script_raised_built, SpidertronExtractor.on_create)
 Events.addListener(defines.events.script_raised_revive, SpidertronExtractor.on_create)
 
-function SpidertronExtractor.delete(extractor, unit_number)
+function SpidertronExtractor.delete(extractor, unit_number, player_index)
     if extractor.output.valid then
+        local output = extractor.output.get_inventory(defines.inventory.chest)
+        if not output.is_empty() then
+            GameUtils.give_items_to_player(output[1], player_index, extractor.output)
+        end
         extractor.output.destroy()
     end
     if extractor.signal.valid then
@@ -102,12 +106,34 @@ function SpidertronExtractor.on_delete(event)
     if not event.entity or not event.entity.valid or event.entity.name ~= SpidertronExtractor.name then return end
     if not global.spidertron_extractors or not global.spidertron_extractors[event.entity.unit_number] then return end
 
-    SpidertronExtractor.delete(global.spidertron_extractors[event.entity.unit_number], event.entity.unit_number)
+    SpidertronExtractor.delete(global.spidertron_extractors[event.entity.unit_number], event.entity.unit_number, event.player_index)
 end
 Events.addListener(defines.events.on_entity_died, SpidertronExtractor.on_delete)
 Events.addListener(defines.events.on_robot_mined_entity, SpidertronExtractor.on_delete)
 Events.addListener(defines.events.on_player_mined_entity, SpidertronExtractor.on_delete)
 Events.addListener(defines.events.script_raised_destroy, SpidertronExtractor.on_delete)
+
+function SpidertronExtractor.on_clone(event)
+    if not event.destination or not event.destination.valid or not global.spidertron_extractors then return end
+    if event.destination.name == SpidertronExtractor.name then
+        local source = global.spidertron_extractors[event.source.unit_number]
+        local output = event.destination.surface.find_entity(SpidertronExtractor.output_name,
+                event.destination.position)
+        local signal = event.destination.surface.find_entity(SpidertronExtractor.signal_name,
+                translate(event.destination.position, 0.5, -0.5))
+        local spidertron = source.spidertron and event.destination.surface.find_entity(
+                source.spidertron.name, event.destination.position)
+        global.spidertron_extractors[event.destination.unit_number] = {
+            entity = event.destination,
+            output = output,
+            signal = signal,
+            spidertron = spidertron,
+            transfer = deepcopy(source.transfer),
+            transfer_config = deepcopy(source.transfer_config),
+        }
+    end
+end
+Events.addListener(defines.events.on_entity_cloned, SpidertronExtractor.on_clone)
 
 function SpidertronExtractor.update(tick)
     for unit_number, extractor in pairs(global.spidertron_extractors or {}) do
@@ -239,14 +265,18 @@ Events.repeatingTask(30, 3, SpidertronExtractor.update)
 
 function SpidertronExtractor.on_open_gui(event)
     if event.gui_type ~= defines.gui_type.entity or not event.entity then return end
+    local player = game.get_player(event.player_index)
     if event.entity.name == SpidertronExtractor.signal_name then
-        game.get_player(event.player_index).opened = nil
+        player.opened = nil
         return
     end
     if event.entity.name ~= SpidertronExtractor.name then return end
     local extractor = global.spidertron_extractors[event.entity.unit_number]
     if not extractor or not extractor.entity.valid then return end
 
+    if player.gui.relative[SpidertronExtractor.window_name] then
+        player.gui.relative[SpidertronExtractor.window_name].destroy()
+    end
     local anchor = { gui = defines.relative_gui_type.container_gui,
                      position = defines.relative_gui_position.right }
     local frame = GuiUtils.createFrame(event, SpidertronExtractor.window_name, anchor, true)

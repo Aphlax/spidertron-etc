@@ -20,7 +20,7 @@ function GameUtils.give_items_to_player(item_stack, player_index, source_entity)
     if item_stack and item_stack.valid_for_read and item_stack.count > 0 then
         if inventory and inventory.can_insert(item_stack) then
             local inserted = inventory.insert(item_stack)
-            if inserted < count then
+            if inserted < item_stack.count then
                 character.surface.spill_item_stack(character.position, {name = item_stack.name, count = item_stack.count - inserted})
             end
         elseif source_entity and source_entity.valid then

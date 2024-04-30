@@ -34,7 +34,7 @@ local sender = {
         wire = {red = {-0.1, -0.19}, green = {-0.35, -0.2}},
         shadow = {red = {0.75, 0.42}, green = {0.5, 0.42}},
     },
-    circuit_wire_max_distance = 10,
+    circuit_wire_max_distance = 15,
 }
 
 local launch_signal = {

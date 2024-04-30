@@ -53,6 +53,7 @@ function SpidertronLauncher.delete(launcher, unit_number, player_index)
         end
         launcher.container.destroy()
     end
+    launcher.internal_inventory.destroy()
     global.spidertron_launchers[unit_number] = nil
 end
 
@@ -67,6 +68,20 @@ Events.addListener(defines.events.on_entity_died, SpidertronLauncher.on_delete)
 Events.addListener(defines.events.on_robot_mined_entity, SpidertronLauncher.on_delete)
 Events.addListener(defines.events.on_player_mined_entity, SpidertronLauncher.on_delete)
 Events.addListener(defines.events.script_raised_destroy, SpidertronLauncher.on_delete)
+
+function SpidertronLauncher.on_clone(event)
+    if not event.destination or not event.destination.valid or not global.spidertron_launchers then return end
+    if event.destination.name == SpidertronLauncher.name then
+        local container = event.destination.surface.find_entity(SpidertronLauncher.container_name,
+                event.destination.position)
+        global.spidertron_launchers[event.destination.unit_number] = {
+            entity = event.destination,
+            container = container,
+            internal_inventory = game.create_inventory(1),
+        }
+    end
+end
+Events.addListener(defines.events.on_entity_cloned, SpidertronLauncher.on_clone)
 
 function SpidertronLauncher.on_open_gui(event)
     if event.gui_type ~= defines.gui_type.entity or not event.entity or
