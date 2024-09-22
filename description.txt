@@ -10,6 +10,7 @@ Feedback and suggestions are highly appreciated.
 ---
 Changelog
 
+- Fixed compatibility issues with the sender and Warptorio. Many minor tweaks.
 - Fixed compatibility issues with Space Exploration spaceships.
 - Added in-game guide with the informatron mod.
 - Fixed compatibility with other Spidertron mods once again.

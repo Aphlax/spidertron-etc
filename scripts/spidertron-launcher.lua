@@ -97,7 +97,7 @@ Events.addListener(defines.events.on_gui_opened, SpidertronLauncher.on_open_gui)
 
 function SpidertronLauncher.update(tick)
     for unit_number, launcher in pairs(global.spidertron_launchers or {}) do
-        if not launcher.entity.valid or not launcher.container.valid then
+        if not launcher.entity.valid or not launcher.container or not launcher.container.valid then
             SpidertronLauncher.delete(launcher, unit_number)
             goto continue
         end

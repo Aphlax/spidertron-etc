@@ -23,6 +23,9 @@ function EquipmentGantryLimit.on_create(event)
     if event.entity and event.entity.valid then
         entity = event.entity
     end
+    if event.destination and event.destination.valid then -- For clone event.
+        entity = event.destination
+    end
     if event.created_entity and event.created_entity.valid then
         entity = event.created_entity
     end
@@ -42,6 +45,8 @@ Events.addListener(defines.events.on_built_entity, EquipmentGantryLimit.on_creat
 Events.addListener(defines.events.on_robot_built_entity, EquipmentGantryLimit.on_create)
 Events.addListener(defines.events.script_raised_built, EquipmentGantryLimit.on_create)
 Events.addListener(defines.events.script_raised_revive, EquipmentGantryLimit.on_create)
+-- Clone.
+Events.addListener(defines.events.on_entity_cloned, EquipmentGantryLimit.on_create)
 
 function EquipmentGantryLimit.update(tick)
     for unit_number, chest in pairs(global.equipment_gantry_chests or {}) do

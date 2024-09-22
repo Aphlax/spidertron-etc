@@ -3,6 +3,7 @@
 # - updated the changelog in description.txt.
 # Deploy this mod with ".\deploy.ps1 -v 1.0.X".
 # Navigate to https://mods.factorio.com/mod/spidertron-etc/downloads, then click Edit Releases (after logging in).
+# Upload the new release, then head to Information and copy the description.txt (and updated images) into the mod.
 
 param($v)
 

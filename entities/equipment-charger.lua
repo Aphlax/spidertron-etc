@@ -73,8 +73,8 @@ local charger_pad = {
 
     -- accumulator
     energy_source = {
-        buffer_capacity = "50MJ",
-        input_flow_limit = "4MW",
+        buffer_capacity = "100MJ",
+        input_flow_limit = "8MW",
         output_flow_limit = "0kW",
         type = "electric",
         usage_priority = "secondary-input",

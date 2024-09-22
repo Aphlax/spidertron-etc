@@ -96,7 +96,8 @@ Events.addListener(defines.events.on_entity_cloned, SpidertronProcessor.on_clone
 
 function SpidertronProcessor.update(tick)
     for unit_number, processor in pairs(global.spidertron_processors or {}) do
-        if not processor.entity.valid or not processor.input.valid or not processor.output.valid then
+        if not processor.entity.valid or not processor.input or not processor.input.valid or
+                not processor.output or not processor.output.valid then
             SpidertronProcessor.delete(processor, unit_number)
             goto continue
         end

@@ -122,7 +122,7 @@ function SpidertronExtractor.on_clone(event)
         local signal = event.destination.surface.find_entity(SpidertronExtractor.signal_name,
                 translate(event.destination.position, 0.5, -0.5))
         local spidertron = source.spidertron and event.destination.surface.find_entity(
-                source.spidertron.name, event.destination.position)
+                source.spidertron.name, translate(event.destination.position, 0, 0.15))
         global.spidertron_extractors[event.destination.unit_number] = {
             entity = event.destination,
             output = output,
@@ -137,7 +137,8 @@ Events.addListener(defines.events.on_entity_cloned, SpidertronExtractor.on_clone
 
 function SpidertronExtractor.update(tick)
     for unit_number, extractor in pairs(global.spidertron_extractors or {}) do
-        if not extractor.entity.valid or not extractor.output.valid or not extractor.signal.valid then
+        if not extractor.entity.valid or not extractor.output or not extractor.output.valid or
+                not extractor.signal or not extractor.signal.valid then
             SpidertronExtractor.delete(extractor, unit_number)
             goto continue
         end
@@ -211,6 +212,7 @@ function SpidertronExtractor.update(tick)
         local trunk = extractor.spidertron.get_inventory(defines.inventory.spider_trunk)
         local trash = extractor.spidertron.get_inventory(defines.inventory.spider_trash)
         local output = extractor.output.get_inventory(defines.inventory.chest)
+        local transfer_count = 0
         for i, item in ipairs(extractor.transfer) do
             local insertable_count = output.get_insertable_count(item.name)
             if insertable_count == 0 then goto continue3 end
@@ -227,6 +229,7 @@ function SpidertronExtractor.update(tick)
                     item.count = item.count - amount
                 end
                 SpidertronExtractor.on_gui_update(extractor)
+                transfer_count = 1
                 break
             end
             ::continue3::
@@ -245,9 +248,10 @@ function SpidertronExtractor.update(tick)
         ctrl.set_signal(1,
                 {signal = {type = "virtual", name = SpidertronExtractor.docked_signal}, count = 1})
         local slot = 2
-        if #extractor.transfer == 0 then
+        if #extractor.transfer == 0 or transfer_count == 0 then
             local signal = {type = "virtual", name = SpidertronExtractor.transfer_complete_signal}
-            ctrl.set_signal(2, {signal = signal, count = 1})
+            local count = (#extractor.transfer == 0) and 1 or -1
+            ctrl.set_signal(2, {signal = signal, count = count})
             slot = 3
         end
         for name, count in pairs(item_signals) do

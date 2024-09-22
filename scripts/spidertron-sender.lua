@@ -51,6 +51,57 @@ Events.addListener(defines.events.on_robot_mined_entity, SpidertronSender.on_del
 Events.addListener(defines.events.on_player_mined_entity, SpidertronSender.on_delete)
 Events.addListener(defines.events.script_raised_destroy, SpidertronSender.on_delete)
 
+function SpidertronSender.on_clone(event)
+    if not event.destination or not event.destination.valid or not global.spidertron_senders then return end
+    if event.destination.name == SpidertronSender.name then
+        local source = global.spidertron_senders[event.source.unit_number]
+        if event.source.surface == event.destination.surface then
+            global.spidertron_senders[event.destination.unit_number] = {
+                entity = event.destination,
+                state = source.state,
+                spidertron = source.spidertron,
+                path = source.path,
+            }
+        else
+            local spidertron_location = source.spidertron and {
+                x = source.spidertron.position.x - event.source.position.x + event.destination.position.x,
+                y = source.spidertron.position.y - event.source.position.y + event.destination.position.y,
+            }
+            local spidertron = source.spidertron and event.destination.surface.find_entity(
+                    source.spidertron.name, spidertron_location)
+            if not spidertron then
+                global.spidertron_senders[event.destination.unit_number] = {
+                    entity = event.destination,
+                    state = SpidertronSender.State.insert_remote,
+                    spidertron = nil,
+                    path = nil,
+                }
+                return
+            end
+
+            local remote = event.destination.get_inventory(defines.inventory.chest)[1]
+            if remote and remote.valid and remote.name == SpidertronSender.remote then
+                remote.connected_entity = spidertron
+            end
+
+            local path = source.path and map(source.path, function(waypoint)
+                return {
+                    x = waypoint.x - event.source.position.x + event.destination.position.x,
+                    y = waypoint.y - event.source.position.y + event.destination.position.y,
+                }
+            end)
+
+            global.spidertron_senders[event.destination.unit_number] = {
+                entity = event.destination,
+                state = source.state,
+                spidertron = spidertron,
+                path = path,
+            }
+        end
+    end
+end
+Events.addListener(defines.events.on_entity_cloned, SpidertronSender.on_clone)
+
 function SpidertronSender.update(tick)
     for unit_number, sender in pairs(global.spidertron_senders or {}) do
         if not sender.entity.valid then

@@ -3,7 +3,7 @@ EquipmentCharger.name = "equipment-charger"
 EquipmentCharger.pad_name = "equipment-charger-pad"
 
 local MAX_TRANSFER_PER_UPDATE = 100000000 -- About 12x the max charging rate.
-local PAD_MAX_TRANSFER_PER_UPDATE = MAX_TRANSFER_PER_UPDATE / 50 -- About 5x the max charging rate.
+local PAD_MAX_TRANSFER_PER_UPDATE = MAX_TRANSFER_PER_UPDATE / 25 -- About 5x the max charging rate.
 
 function EquipmentCharger.on_create(event)
     local entity
@@ -87,8 +87,12 @@ Events.addListener(defines.events.on_player_mined_entity, EquipmentCharger.on_de
 Events.addListener(defines.events.script_raised_destroy, EquipmentCharger.on_delete)
 
 function EquipmentCharger.on_clone(event)
-    if not event.destination or not event.destination.valid or not global.spidertron_chargers then return end
-    if event.destination.name == EquipmentCharger.name then
+    if not event.destination or not event.destination.valid then return end
+    if event.destination.name == EquipmentCharger.pad_name and global.equipment_charger_pads then
+        global.equipment_charger_pads[event.destination.unit_number] = event.destination
+        return
+    end
+    if event.destination.name == EquipmentCharger.name and global.spidertron_chargers then
         local input = event.destination.surface.find_entity(
                 SpidertronEtcUtils.getInputContainerName(event.destination.direction),
                 v_add(event.destination.position, v_rotate({ x = -0.5, y = 0.4 }, event.destination.direction)))
@@ -106,7 +110,8 @@ Events.addListener(defines.events.on_entity_cloned, EquipmentCharger.on_clone)
 
 function EquipmentCharger.update(tick)
     for unit_number, charger in pairs(global.spidertron_chargers or {}) do
-        if not charger.entity.valid or not charger.input.valid or not charger.output.valid then
+        if not charger.entity.valid or not charger.input or not charger.input.valid or
+                not charger.output or not charger.output.valid then
             EquipmentCharger.delete(charger, unit_number)
             goto continue
         end
